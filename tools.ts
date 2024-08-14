@@ -3,6 +3,7 @@ import { generateText, tool } from "ai";
 import { llama } from "./model";
 import type { Client, Chat, Message } from "whatsapp-web.js";
 import { WA } from "./client";
+import { getDataFromMail } from "./lib/email";
 
 const system = "You are a helpful whatsapp bot named INSIGHT that build for students at SJCET Palai college."
 
@@ -82,10 +83,25 @@ export const getResponseTool = async (
 			execute: async ({ collegeEmail }) => {
 				if (!collegeEmail) return "Please provide your college email address to login"
 
+				const {SJCET, data} = getDataFromMail(collegeEmail)
 
-				const res = "Login cheyth sett aayi"
 
-				return res
+				if (!SJCET || !data) return "You are not autherized to login. Need SJCET college Email ID"
+
+				return `Hello ${data.name} 👋\n\nWelcome to INSIGHT SJCET\n\nLogined as ${data?.year !== "NA" ? "Student" : "Faculty\nContact Admin for Extra Insights"}\n\nOTP has been sent, paste it here to verify.`
+			},
+		}),
+		OTP: tool({
+			description: 'If prompt contains 6 digit OTP',
+			parameters: z.object({
+				number: z.number().min(99999).max(999999).describe("The 6 digit OTP")
+			}),
+			execute: async ({ number }) => {
+				// if (number)
+
+				return "OTP verified"
+
+				// return `Hello ${data.name} 👋\n\nWelcome to INSIGHT SJCET\n\nLogined as ${data?.year !== "NA" ? "Student" : "Faculty\nContact Admin for Extra Insights"}`
 			},
 		}),
 		register: tool({
