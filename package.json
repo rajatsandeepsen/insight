@@ -2,13 +2,20 @@
   "name": "insight",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "tsx --env-file=.env ./index.ts"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/qrcode-terminal": "^0.12.2",
+    "tsx": "^4.17.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.45",
+    "ai": "^3.3.6",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.25.0"
   }
