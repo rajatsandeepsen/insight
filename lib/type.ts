@@ -1,10 +1,8 @@
 export const allRoles = {
-  USER: true,
-  STUDENT_COORDINATOR: true,
-  FACULTY_COORDINATOR: true,
-  MANAGEMENT: true,
-  ADMIN: true,
-  DESK: true,
+  "NA": true,
+  student: true,
+  faculty: true,
+  admin: true,
 } as const;
 
 export type AllRoles = keyof typeof allRoles;
@@ -43,9 +41,10 @@ export type AllYears = keyof typeof allYears;
 export type College = 'SJCET' | 'NA' | (string & {})
 
 export type SimpleSJCET = {
-  role: 'student' | 'admin' | 'faculty' | "NA";
+  role: AllRoles;
   name?: string;
   email: string;
+  verified?: boolean
 }
 
 export type SJCET = SimpleSJCET & ({

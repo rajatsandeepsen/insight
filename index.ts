@@ -1,6 +1,8 @@
 import { client, WA } from "./client";
 import qrcode from 'qrcode-terminal';
-import { getResponse, getResponseTool } from "./tools";
+import { generateTools } from "@/tools/index";
+import { model } from "./model";
+import { system } from "@/tools/sjcet";
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -21,18 +23,22 @@ client.on('message_create', async (message) => {
     if (message.isStatus) return;
     // if (message.) return;
 
-
     const chat = await message.getChat();
     chat.sendSeen();
     chat.sendStateTyping();
 
     console.log("Q:", message.body);
-    getResponseTool(
-        message.body,
-        {
-            quote: message.hasQuotedMsg ? await message.getQuotedMessage() : undefined
-        }
-    ).then(reply => {
+
+    const AITools = await generateTools({
+        chat, client, message,
+        quote: message.hasQuotedMsg ? await message.getQuotedMessage() : undefined
+    })
+
+    AITools({
+        model, 
+        prompt: message.body,
+        system,
+    }).then(reply => {
 
         for (const toolResult of reply.toolResults) {
             console.log("A:", toolResult.toolName)

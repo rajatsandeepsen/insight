@@ -1,24 +1,13 @@
 import { prefixRedis, redisClient } from "./client";
 import type { AllDepartments, AllYears, SJCET } from "@/lib/type";
 
-
-export const isStudent = (year: AllYears) => {
-	if (year === "NA") return false
-
-	const currentYear = new Date().getFullYear()
-	const passOutYear = Number.parseInt(year)
-
-	if (currentYear < passOutYear) return true
-	return false
-}
-
-export class Student {
+export class Faculty {
     private static key: string;
 
     constructor(public data: SJCET, public number: string) {
         this.data = data;
         this.number = number;
-        Student.setKey(number);
+        Faculty.setKey(number);
     }
 
     getData() {
@@ -29,23 +18,23 @@ export class Student {
     }
 
     static setKey(number: string) {
-        Student.key = `${prefixRedis}student:${number}`;
+        Faculty.key = `${prefixRedis}faculty:${number}`;
     }
 
     async create() {
-        return await redisClient.set(Student.key, this.data);
+        return await redisClient.set(Faculty.key, this.data);
     }
 
     static async fetch(number: string) {
-        Student.setKey(number);
-        const data = await redisClient.get<SJCET>(Student.key);
+        Faculty.setKey(number);
+        const data = await redisClient.get<SJCET>(Faculty.key);
         if (!data) return null;
 
-        return new Student(data, number);
+        return new Faculty(data, number);
     }
 
     async delete() {
-        await redisClient.del(Student.key);
+        await redisClient.del(Faculty.key);
     }
 
     async update({ department, name, year }: Partial<Pick<SJCET, "department" | "name" | "year">>) {
@@ -60,9 +49,9 @@ export class Student {
 // const { isSJCET, data } = getDataFromMail("rajatsandeepsen2025@ai.sjcetpalai.ac.in")
 
 // if (isSJCET) {
-//     const std = new Student({ ...data, name: "Rajat Sandeep" }, "9846101882")
+//     const std = new Faculty({ ...data, name: "Rajat Sandeep" }, "9846101882")
 //     console.log(std, await std.create())
 // }
 
-// const std = await Student.fetch("9846101882")
+// const std = await Faculty.fetch("9846101882")
 // console.log(std?.getData())

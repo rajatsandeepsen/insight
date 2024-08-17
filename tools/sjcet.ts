@@ -1,3 +1,10 @@
+import { tool } from "ai";
+import { z } from "zod";
+import type { NeccessaryInfo } from ".";
+import { WA } from "@/client";
+import { getResponse } from "@/model";
+
+
 
 export const system = "You are a helpful whatsapp bot named INSIGHT that build for students at SJCET Palai college."
 
@@ -24,3 +31,53 @@ Instruction: Answer the following questions from above data. If question is not 
 
 Question: ${q}
 Anwser: `
+
+export const getCommonTools = (neccessaryInfo?: NeccessaryInfo) => {
+    return {
+        getInformation: tool({
+            description: 'Get answers for any questions/information about SJCET college',
+            parameters: z.object({
+                question: z.string().describe("The question or the information looking for")
+            }),
+            execute: async ({ question }) => {
+                console.log("Searching for:", question)
+
+                const prompt = questionTemaplate(question)
+
+                const res = await getResponse(prompt)
+
+                console.log(res)
+
+                return res
+            },
+        }),
+
+        getEvents: tool({
+			description: 'Get events details happening/upcoming in SJCET college',
+			parameters: z.object({
+				eventName: z.string().optional().describe("About a specific event")
+			}),
+			execute: async ({ eventName }) => {
+				if (!eventName) {
+					return new WA.List('Insendium', 'WedCafe', [
+						{
+							title: 'sectionTitle',
+							rows: [
+								{ id: 'customId', title: 'ListItem2', description: 'desc' },
+								{ title: 'ListItem2' }
+							]
+						}], 'Top20Designers');
+				}
+				return `${eventName}... ath kazhinj poyi.. hahaha`
+			},
+		}),
+
+        actionNotAvailable: tool({
+            description: 'If prompt includes any unavailable action to perform',
+            parameters: z.object({
+                actionName: z.string().describe("unavailable action name")
+            }),
+            execute: async ({ actionName }) =>  `Action: "${actionName}" is not available`
+        })
+    }
+}
