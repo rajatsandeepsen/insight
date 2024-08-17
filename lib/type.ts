@@ -41,3 +41,16 @@ export const allYears = {
 export type AllYears = keyof typeof allYears;
 
 export type College = 'SJCET' | 'NA' | (string & {})
+
+export type SimpleSJCET = {
+  role: 'student' | 'admin' | 'faculty' | "NA";
+  name?: string;
+  email: string;
+}
+
+export type SJCET = SimpleSJCET & ({
+  college: College;
+  username: string
+  department: AllDepartments;
+  year: AllYears;
+})

@@ -4,32 +4,7 @@ import { llama } from "./model";
 import type { Client, Chat, Message } from "whatsapp-web.js";
 import { WA } from "./client";
 import { getDataFromMail } from "./lib/email";
-
-const system = "You are a helpful whatsapp bot named INSIGHT that build for students at SJCET Palai college."
-
-const newestDataAboutSJCET = [
-	"SJCET Palai has received accreditation from the National Board of Accreditation (NBA) for several of its undergraduate engineering programs",
-	`The college has been awarded NAAC 'A' grade and obtained autonomous status by July 2024`,
-	"It is certified under ISO 9001:2008 and holds ISO 9001:2015 and ISO 14001:2015 certifications"
-]
-
-const aboutSJCET = `St. Joseph's College of Engineering and Technology (SJCET), Palai is a private engineering college located in Pala, Kerala, India. 
-It was established in 2002 by the Diocesan Technical Education Trust of the Catholic Diocese of Palai and is affiliated with Mahatma Gandhi University, Kottayam and APJ Abdul Kalam Technological University. 
-SJCET Palai is approved by the All India Council for Technical Education (AICTE) and offers professional degree programs in engineering and management.
-
-website: https://www.sjcetpalai.ac.in/
-Address: Choondacherry, Palai, Kerala 686579
-Principal: Dr. V. P. Devassia
-`
-
-const questionTemaplate = (q: string) => `Data: ${aboutSJCET} 
-
-Newest Information: ${newestDataAboutSJCET.join("\n")}
-
-Instruction: Answer the following questions from above data. If question is not about SJCET, just say "Im not created for these questions"
-
-Question: ${q}
-Anwser: `
+import { questionTemaplate, system } from "@/tools/sjcet";
 
 export const getResponseTool = async (
 	prompt: string,
@@ -65,10 +40,11 @@ export const getResponseTool = async (
 			execute: async ({ eventName }) => {
 				if (!eventName) {
 					return new WA.List('Insendium', 'WedCafe', [
-						{title:'sectionTitle',
-							rows:[
-								{id:'customId', title:'ListItem2', description: 'desc'},
-								{title:'ListItem2'}
+						{
+							title: 'sectionTitle',
+							rows: [
+								{ id: 'customId', title: 'ListItem2', description: 'desc' },
+								{ title: 'ListItem2' }
 							]
 						}], 'Top20Designers');
 				}
@@ -78,17 +54,18 @@ export const getResponseTool = async (
 		login: tool({
 			description: 'Login to the INSIGHT system',
 			parameters: z.object({
-				collegeEmail: z.string().optional().describe("College email address")
+				collegeEmail: z.string().describe("College email address"),
+				fullName: z.string().describe("Full name of the user")
 			}),
 			execute: async ({ collegeEmail }) => {
 				if (!collegeEmail) return "Please provide your college email address to login"
 
-				const {SJCET, data} = getDataFromMail(collegeEmail)
+				const { isSJCET, data } = getDataFromMail(collegeEmail)
 
 
-				if (!SJCET || !data) return "You are not autherized to login. Need SJCET college Email ID"
+				if (!isSJCET || !data) return "You are not autherized to login. Need SJCET college Email ID"
 
-				return `Hello ${data.name} 👋\n\nWelcome to INSIGHT SJCET\n\nLogined as ${data?.year !== "NA" ? "Student" : "Faculty\nContact Admin for Extra Insights"}\n\nOTP has been sent, paste it here to verify.`
+				return `Hello ${data.college} 👋\n\nWelcome to INSIGHT SJCET\n\nLogined as ${data?.year !== "NA" ? "Student" : "Faculty\nContact Admin for Extra Insights"}\n\nOTP has been sent, paste it here to verify.`
 			},
 		}),
 		OTP: tool({

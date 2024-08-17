@@ -1,27 +1,32 @@
-import type { AllDepartments, AllYears, College } from "./data";
+import type { AllDepartments, AllYears, SJCET } from "./type";
 
 /**
- * eg: name2025@ai.sjcetpalai.ac.in
+ * eg: username2025@ai.sjcetpalai.ac.in
  */
 const studentsRegex = /^([a-zA-Z]+)([0-9]{4})@([a-zA-Z]+)\.sjcetpalai\.ac\.in$/;
 /**
- * eg: name2025.ecs@sjcetpalai.ac.in
+ * eg: username2025.ecs@sjcetpalai.ac.in
  */
 const otherStudentsRegex = /^([a-zA-Z]+)([0-9]{4})\.([a-zA-Z]+)@sjcetpalai\.ac\.in$/;
 
+/**
+ * eg: username@sjcetpalai.ac.in
+ */
 const globalEmailCase = /^([a-zA-Z]+)@sjcetpalai\.ac\.in$/;
 
-type SJCET = ({
-    college: College;
-    name: string
-    department: AllDepartments;
-    year: AllYears;
-})
+type ReturnGetDataFromMail = {
+    isSJCET: true;
+    data: SJCET
+} | {
+    isSJCET: false;
+    data: null;
+}
 
-export const getDataFromMail = (email: string) => {
-    const SJCET = email.endsWith('sjcetpalai.ac.in');
+export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
+    const email = mail.trim().toLowerCase();
+    const isSJCET = email.endsWith('sjcetpalai.ac.in');
 
-    if (SJCET) {
+    if (isSJCET) {
         const match = email.match(studentsRegex);
 
         if (match !== null) {
@@ -29,9 +34,11 @@ export const getDataFromMail = (email: string) => {
                 year: (match[2] as AllYears) ?? 'NA',
                 department: (match[3] as AllDepartments) === 'es' ? 'ecs' : (match[3] as AllDepartments) ?? 'NA',
                 college: 'SJCET',
-                name: match[1],
+                username: match[1],
+                role: 'student',
+                email,
             };
-            return { SJCET, data };
+            return { isSJCET, data };
         }
 
         const otherMatch = email.match(otherStudentsRegex);
@@ -41,22 +48,28 @@ export const getDataFromMail = (email: string) => {
                 year: (otherMatch[2] as AllYears) ?? 'NA',
                 department: (otherMatch[3] as AllDepartments) === 'es' ? 'ecs' : (otherMatch[3] as AllDepartments) ?? 'NA',
                 college: 'SJCET',
-                name: otherMatch[1]
+                username: otherMatch[1],
+                role: 'student',
+                email,
             };
-            return { SJCET, data };
+            return { isSJCET, data };
         }
-        
+
         const facultyMatch = email.match(globalEmailCase);
-        
+
         if (facultyMatch) {
             const data: SJCET = {
                 year: "NA",
                 department: "NA",
                 college: 'SJCET',
-                name: facultyMatch[1],
+                username: facultyMatch[1],
+                role: 'student',
+                email,
             }
-            return { SJCET, data };
+            return { isSJCET, data };
         }
+
+        return { isSJCET:false, data: null };
     }
-    return { SJCET, data: null };
+    return { isSJCET, data: null };
 };
