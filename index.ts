@@ -19,8 +19,13 @@ client.on('qr', (qr) => {
 client.on('message_create', async (message) => {
 
     if (message.fromMe) return;
-    if (message.hasMedia) return;
     if (message.isStatus) return;
+    if (message.hasMedia) {
+
+        // login for QR image validation
+
+        return
+    }
     // if (message.) return;
 
     const chat = await message.getChat();
