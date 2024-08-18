@@ -1,50 +1,50 @@
 import { getDataFromMail } from "@/lib/email"
 import { tool } from "ai"
-import type { NeccessaryInfo } from "./index"
+import type { NeccessaryInfo, ToolBaseData } from "./index"
 import { z } from "zod";
+import { User } from "@/cache/user";
 
-export const getGuestTools = (neccessaryInfo?: NeccessaryInfo) => {
+export const getGuestTools = (toolBaseData: ToolBaseData) => {
+    const { number } = toolBaseData
+
     return {
         login: tool({
-            description: 'Login to the INSIGHT system',
+            description: 'to authenticate into the system',
             parameters: z.object({
-                collegeEmail: z.string().describe("College email address"),
-                fullName: z.string().describe("Full name of the user")
+                email: z.string().email().describe("Email address of user (dont guess)"),
             }),
-            execute: async ({ collegeEmail }) => {
-                if (!collegeEmail) return "Please provide your college email address to login"
+            execute: async ({ email }) => {
+                if (!email) return "Please provide your college email address to login"
 
-                const { isSJCET, data } = getDataFromMail(collegeEmail)
-
-                // const student = new Student(data,)
-
+                const { isSJCET, data } = getDataFromMail(email)
 
                 if (!isSJCET || !data) return "You are not autherized to login. Need SJCET college Email ID"
 
-                return `Hello ${data.college} 👋\n\nWelcome to INSIGHT SJCET\n\nLogined as ${data?.year !== "NA" ? "Student" : "Faculty\nContact Admin for Extra Insights"}\n\nOTP has been sent, paste it here to verify.`
+                const student = new User(data, number)
+                const res = await User.createAccount(student.data, number)
+
+                if (res) {
+                    const { name } = student.data
+
+                    return `Hi ${name} 👋\n\nOTP has been sent to your email, paste it here to verify.`
+                }
+
+                return "Something wrong with Authentication"
             },
         }),
 
-        OTP: tool({
-			description: 'If prompt contains 6 digit OTP',
-			parameters: z.object({
-				number: z.number().min(99999).max(999999).describe("The 6 digit OTP")
-			}),
-			execute: async ({ number }) => {
-				// if (number)
-
-				return "OTP verified"
-
-				// return `Hello ${data.name} 👋\n\nWelcome to INSIGHT SJCET\n\nLogined as ${data?.year !== "NA" ? "Student" : "Faculty\nContact Admin for Extra Insights"}`
-			},
-		}),
-
-        actionNotAvailable: tool({
-            description: 'If prompt includes any unavailable action to perform',
+        verifyOTP: tool({
+            description: 'Only If user prompt contains 6 digit number',
             parameters: z.object({
-                actionName: z.string().describe("unavailable action name")
+                otp: z.number().min(99999).max(999999).describe("The 6 digit OTP")
             }),
-            execute: async ({ actionName }) =>  `Action: "${actionName}" is not available. Please login to get access to more Functionalities`
-        })
+            execute: async ({ otp }) => {
+                const student = await User.verify(otp, number)
+
+                if (student) return `Welcome ${student.data.name} 👋\n\n OTP is verified ✅\nLogined as ${student.data.role}`
+
+                return `Something wrong, Please paste correct OTP from mail`
+            },
+        }),
     }
 }

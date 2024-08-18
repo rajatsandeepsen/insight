@@ -8,7 +8,7 @@ export const allRoles = {
 export type AllRoles = keyof typeof allRoles;
 
 export const allDepartments = {
-  NA: 'Other',
+  NA: 'NA',
   ai: 'Artificial Intelligence & DS',
   ec: 'Electronics and Communication',
   cs: 'Computer Science',
@@ -42,14 +42,17 @@ export type College = 'SJCET' | 'NA' | (string & {})
 
 export type SimpleSJCET = {
   role: AllRoles;
-  name?: string;
+  name: string;
   email: string;
-  verified?: boolean
 }
 
 export type SJCET = SimpleSJCET & ({
   college: College;
-  username: string
   department: AllDepartments;
   year: AllYears;
 })
+
+export type UserOtp = {
+  otp: number, 
+  email: string 
+}

@@ -1,10 +1,12 @@
 import { tool } from "ai"
-import type { NeccessaryInfo } from "./index"
+import type { ToolBaseData } from "./index"
 import { z } from "zod";
+import { User } from "@/cache/user";
 
-export const getAllUserTools = (neccessaryInfo?: NeccessaryInfo) => {
-    return {
-        register: tool({
+export const getAllUserTools = (toolBaseData: ToolBaseData) => {
+	const { number } = toolBaseData
+	return {
+		register: tool({
 			description: 'Register to a Event',
 			parameters: z.object({
 				eventName: z.string().optional().describe("Name of the event")
@@ -34,7 +36,7 @@ export const getAllUserTools = (neccessaryInfo?: NeccessaryInfo) => {
 			},
 		}),
 
-        getCommunityInvitation: tool({
+		getCommunityInvitation: tool({
 			description: 'Get the invitation to join a specific community whatsapp group',
 			parameters: z.object({
 				communityName: z.enum(["IEDC", "IEEE", "GDSC", "TinkerHub", "Nexus", "SAE", "NSS"]).describe("Name of the community")
@@ -45,12 +47,14 @@ export const getAllUserTools = (neccessaryInfo?: NeccessaryInfo) => {
 			},
 		}),
 
-        logout: tool({
-            description: 'Logout or remove account',
-            parameters: z.object({}),
-            execute: async () => {
-                return `Signed out from this Whatapp Number`
-            },
-        }),
-    }
+		logout: tool({
+			description: 'Logout or remove account',
+			parameters: z.object({}),
+			execute: async () => {
+				const res = await User.logout(number)
+				if (res) return `Signed out from this Whatapp Number`
+				return `Something wrong with Signing out`
+			},
+		}),
+	}
 }
