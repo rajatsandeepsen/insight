@@ -43,7 +43,12 @@ client.on('message_create', async (message) => {
             switch(media.mimetype){
                 case "image/jpeg":
                 case "image/png":
-                    message.reply(await readQRCode(media.data))
+                    try {
+                        const decoded = await readQRCode(media.data)
+                        message.reply(decoded);
+                    } catch (error) {
+                        message.reply("Unable to read the qr code.");
+                    }
             }
         }
         // login for QR image validation
