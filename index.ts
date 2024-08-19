@@ -12,7 +12,13 @@ async function readQRCode(image: string): Promise<string>{
     console.log(rawData);
     const imageData = await Jimp.read(rawData);
 
-    return (await jsQR(new Uint8ClampedArray(imageData.bitmap.data), imageData.bitmap.width, imageData.bitmap.height))?.data!;
+    const resultString = (jsQR(new Uint8ClampedArray(imageData.bitmap.data), imageData.bitmap.width, imageData.bitmap.height))?.data;
+
+    if(!resultString){
+        throw new Error("Data could not be interpreted")
+    }
+
+    return resultString;
 }
 
 client.on('ready', () => {
