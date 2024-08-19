@@ -4,6 +4,17 @@ import { generateTools } from "@/tools/index";
 import { model } from "./model";
 import { system } from "@/tools/sjcet";
 
+import jsQR from "jsqr";
+import Jimp from "jimp";
+
+async function readQRCode(image: string): Promise<string>{
+    const rawData = Buffer.from(image, 'base64');
+    console.log(rawData);
+    const imageData = await Jimp.read(rawData);
+
+    return (await jsQR(new Uint8ClampedArray(imageData.bitmap.data), imageData.bitmap.width, imageData.bitmap.height))?.data!;
+}
+
 client.on('ready', () => {
     console.log('Client is ready!');
 });
@@ -18,10 +29,17 @@ client.on('qr', (qr) => {
 
 client.on('message_create', async (message) => {
 
-    if (message.fromMe) return;
+    if (!message.fromMe) return;
     if (message.isStatus) return;
     if (message.hasMedia) {
-
+        const media = await message.downloadMedia();
+        if(media){
+            switch(media.mimetype){
+                case "image/jpeg":
+                case "image/png":
+                    message.reply(await readQRCode(media.data))
+            }
+        }
         // login for QR image validation
 
         return
