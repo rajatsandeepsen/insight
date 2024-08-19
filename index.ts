@@ -35,7 +35,7 @@ client.on('qr', (qr) => {
 
 client.on('message_create', async (message) => {
 
-    if (!message.fromMe) return;
+    if (message.fromMe) return;
     if (message.isStatus) return;
     if (message.hasMedia) {
         const media = await message.downloadMedia();
