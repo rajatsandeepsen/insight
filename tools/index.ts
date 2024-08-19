@@ -1,9 +1,9 @@
 import type { AllRoles } from "@/lib/type";
+import { model } from "@/model";
 import { generateText, type CoreTool } from "ai";
-import type { Chat, Client, Message } from "whatsapp-web.js";
+import type { Message } from "whatsapp-web.js";
 import { getGuestTools } from "./guest";
 import { getCommonTools } from "./sjcet";
-import type { ChatOptions } from "@/client";
 import { getStudentsTools } from "./student";
 import { getAllUserTools } from "./user";
 
@@ -13,20 +13,26 @@ export type TOOLS = Record<string, CoreTool>
 export type NeccessaryInfo = {
 } & Awaited<ReturnType<Message["getContact"]>>
 
-export const generateTools = async (chatOptions: ChatOptions) => {
-    const { number, isUser, getChat, getFormattedNumber } = await chatOptions.message.getContact()
+export type ToolBaseData = {
+    role: AllRoles,
+    number: string,
+}
 
-    const role = "NA" as AllRoles
+export const generateTools = async (toolBaseData: ToolBaseData) => {
+    const { role } = toolBaseData
 
     const tools = {
-        ...getCommonTools(),
-        ...role === "NA" ? getGuestTools() : getAllUserTools(),
+        ...role === "NA" ? getGuestTools(toolBaseData) : getAllUserTools(toolBaseData),
         ...role === "student" ? getStudentsTools() : {},
-    }
+        
+    } as ReturnType<typeof getGuestTools>
 
-    return async (options: Parameters<typeof generateText>[0]) => await generateText({
+    Object.assign(tools, getCommonTools(Object.keys(tools), toolBaseData))
+
+    return async (options: Partial<Parameters<typeof generateText>[0]>) => await generateText({
         ...options,
-        toolChoice: "required",
+        model,
+        toolChoice: "auto",
         tools,
     })
 

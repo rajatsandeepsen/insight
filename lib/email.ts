@@ -34,8 +34,8 @@ export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
                 year: (match[2] as AllYears) ?? 'NA',
                 department: (match[3] as AllDepartments) === 'es' ? 'ecs' : (match[3] as AllDepartments) ?? 'NA',
                 college: 'SJCET',
-                username: match[1],
                 role: 'student',
+                name: match[1],
                 email,
             };
             return { isSJCET, data };
@@ -48,8 +48,8 @@ export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
                 year: (otherMatch[2] as AllYears) ?? 'NA',
                 department: (otherMatch[3] as AllDepartments) === 'es' ? 'ecs' : (otherMatch[3] as AllDepartments) ?? 'NA',
                 college: 'SJCET',
-                username: otherMatch[1],
                 role: 'student',
+                name: otherMatch[1],
                 email,
             };
             return { isSJCET, data };
@@ -62,8 +62,8 @@ export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
                 year: "NA",
                 department: "NA",
                 college: 'SJCET',
-                username: facultyMatch[1],
                 role: 'student',
+                name: facultyMatch[1],
                 email,
             }
             return { isSJCET, data };
@@ -73,3 +73,20 @@ export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
     }
     return { isSJCET, data: null };
 };
+
+
+/**
+ * 910000111100 to 0000111100
+ */
+
+export const extractNumber = (number:string) => {
+    const n = number.trim().replace(/\D/g, '');
+
+    console.log("raw num", n)
+
+    if (n.length !== 12) throw new Error("Mobile number is not 10 digits")
+
+    if (n.startsWith("91")) return n.slice(2)
+
+    throw new Error("Number outside India is not permitted yet")
+}
