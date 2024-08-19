@@ -82,8 +82,6 @@ export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
 export const extractNumber = (number:string) => {
     const n = number.trim().replace(/\D/g, '');
 
-    console.log("raw num", n)
-
     if (n.length !== 12) throw new Error("Mobile number is not 10 digits")
 
     if (n.startsWith("91")) return n.slice(2)
