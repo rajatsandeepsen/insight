@@ -5,23 +5,7 @@ import { client, WA } from "./client";
 import { extractNumber } from "./lib/email";
 import { tryAsync, trys } from "./lib/utils";
 import { getUserPrompt, system } from "./tools/sjcet";
-
-import jsQR from "jsqr";
-import Jimp from "jimp";
-
-async function readQRCode(image: string): Promise<string>{
-    const rawData = Buffer.from(image, 'base64');
-    console.log(rawData);
-    const imageData = await Jimp.read(rawData);
-
-    const resultString = (jsQR(new Uint8ClampedArray(imageData.bitmap.data), imageData.bitmap.width, imageData.bitmap.height))?.data;
-
-    if(!resultString){
-        throw new Error("Data could not be interpreted")
-    }
-
-    return resultString;
-}
+import { readQRCode } from "./lib/image";
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -54,21 +38,18 @@ client.on('message_create', async (message) => {
 
     if (message.hasMedia) {
         const media = await message.downloadMedia();
-        if(media){
-            switch(media.mimetype){
-                case "image/jpeg":
-                case "image/png":
-                    const {error, data} = await tryAsync(async () => {
-                        return await readQRCode(media.data)
-                    })
-                    if(error){
-                        message.reply("Unable to read the QR code");
-                    }else{
-                        message.reply(data);
-                    }
+        switch (media.mimetype) {
+            case "image/jpeg":
+            case "image/png": {
+
+                const { error, data } = await tryAsync(async () => await readQRCode(media.data))
+
+                if (error) message.reply("Unable to identify the image");
+                else message.reply(data);
+                return
             }
+            // default: message.reply("Wrong image format");
         }
-        // login for QR image validation
 
         return
     }
