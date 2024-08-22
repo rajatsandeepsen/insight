@@ -1,4 +1,7 @@
-# insight
+# INSIGHT Bot
+
+![image](https://github.com/user-attachments/assets/b676079b-c1d0-4f4e-831a-61b421d1d017)
+
 
 To install dependencies:
 
@@ -6,10 +9,14 @@ To install dependencies:
 bun install
 ```
 
+To authenticate
+
+```
+.env.example -> .env
+```
+
 To run:
 
 ```bash
-bun run index.ts
+bun run dev
 ```
-
-This project was created using `bun init` in bun v1.1.23. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
