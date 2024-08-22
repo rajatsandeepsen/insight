@@ -1,6 +1,6 @@
 import { getDataFromMail } from "@/lib/email"
 import { tool } from "ai"
-import type { NeccessaryInfo, ToolBaseData } from "./index"
+import type { ToolBaseData } from "./index"
 import { z } from "zod";
 import { User } from "@/cache/user";
 
@@ -9,9 +9,9 @@ export const getGuestTools = (toolBaseData: ToolBaseData) => {
 
     return {
         login: tool({
-            description: 'to authenticate into the system',
+            description: 'Authenticate into the system with email id',
             parameters: z.object({
-                email: z.string().email().describe("Email address of user (dont guess)"),
+                email: z.string().email().describe("Email address of user"),
             }),
             execute: async ({ email }) => {
                 if (!email) return "Please provide your college email address to login"

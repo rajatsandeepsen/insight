@@ -1,22 +1,16 @@
 import { generateTools } from "@/tools/index";
 import qrcode from 'qrcode-terminal';
-import { User } from "./cache/user";
-import { client, WA } from "./client";
-import { extractNumber } from "./lib/email";
-import { tryAsync, trys } from "./lib/utils";
-import { getUserPrompt, system } from "./tools/sjcet";
-import { readQRCode } from "./lib/image";
+import { User } from "@/cache/user";
+import { client } from "@/client";
+import { extractNumber, getDataFromMail } from "@/lib/email";
+import { tryAsync, trys } from "@/lib/utils";
+import { getUserPrompt, system } from "@/tools/sjcet";
+import { getPromptForQRImages, readQRCode } from "@/lib/image";
+import { verifyToken, type TokenData } from "@/lib/encryption";
+import { getResponse } from "@/model";
 
 client.on('ready', () => {
     console.log('Client is ready!');
-});
-
-client.on('auth_failure', msg => {
-    console.error('AUTHENTICATION FAILURE', msg);
-});
-
-client.on('qr', (qr) => {
-    qrcode.generate(qr, { small: true });
 });
 
 client.on('message_create', async (message) => {
@@ -32,7 +26,7 @@ client.on('message_create', async (message) => {
     if (numberError) return
 
     const { data: user, error: userError } = await tryAsync(async () => await User.get(validatedNumber))
-    if (userError) return
+    // if (userError) return
 
     const role = user?.data.role ?? "NA"
 
@@ -42,18 +36,32 @@ client.on('message_create', async (message) => {
             case "image/jpeg":
             case "image/png": {
 
-                const { error, data } = await tryAsync(async () => await readQRCode(media.data))
+                const { error, data } = await readQRCode(media.data)
 
-                if (error) message.reply("Unable to identify the image");
-                else message.reply(data);
-                return
+                if (error) {
+                    message.reply("Unable to identify QR inside the image");
+                    return
+                }
+
+                const { data: info, error: infoE } = verifyToken<TokenData>(data)
+                if (infoE) {
+                    message.reply("Unable to token inside QR image");
+                    return
+                }
+
+                const user = getDataFromMail(info.email)
+                if (!user.data) {
+                    message.reply("User data is not validated");
+                    return
+                }
+
+                const { prompt, system } = getPromptForQRImages(user, info)
+                const res = await getResponse(prompt, system)
+                message.reply(res);
             }
-            // default: message.reply("Wrong image format");
         }
-
         return
     }
-
 
     console.log("Q:", message.body);
 

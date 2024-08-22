@@ -32,7 +32,7 @@ export const generateTools = async (toolBaseData: ToolBaseData) => {
     return async (options: Partial<Parameters<typeof generateText>[0]>) => await generateText({
         ...options,
         model,
-        toolChoice: "auto",
+        toolChoice: "required",
         tools,
     })
 

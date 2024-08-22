@@ -14,7 +14,7 @@ const otherStudentsRegex = /^([a-zA-Z]+)([0-9]{4})\.([a-zA-Z]+)@sjcetpalai\.ac\.
  */
 const globalEmailCase = /^([a-zA-Z]+)@sjcetpalai\.ac\.in$/;
 
-type ReturnGetDataFromMail = {
+export type ReturnGetDataFromMail = {
     isSJCET: true;
     data: SJCET
 } | {

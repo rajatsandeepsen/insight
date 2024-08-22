@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx --env-file=.env ./index.ts"
+    "dev": "tsx --env-file=.env ./index.ts",
+    "dev:broadcast": "tsx --env-file=.env ./script/broadcast.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -19,9 +20,11 @@
     "@upstash/redis": "^1.34.0",
     "ai": "^3.3.6",
     "jimp": "^0.22.12",
+    "json-2-csv": "^5.5.5",
     "jsonwebtoken": "^9.0.2",
     "jsqr": "^1.4.0",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.25.0"
+    "whatsapp-web.js": "^1.25.0",
+    "zod": "^3.23.8"
   }
 }
