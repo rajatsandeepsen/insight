@@ -3,3 +3,4 @@ authContainer
 dist
 node_modules
 .env
+script

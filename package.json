@@ -9,6 +9,7 @@
     "build": "node ./build.js"
   },
   "devDependencies": {
+    "@types/bun": "latest",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/qrcode-terminal": "^0.12.2",
     "esbuild": "^0.23.1",
