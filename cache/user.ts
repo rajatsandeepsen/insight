@@ -1,7 +1,8 @@
-import { generateOTP } from "@/lib/otp";
-import { prefixRedis, redisClient } from "./client";
-import type { AllDepartments, AllYears, SJCET, UserOtp } from "@/lib/type";
 import { getDataFromMail } from "@/lib/email";
+import { generateOTP } from "@/lib/otp";
+import type { AllYears, SJCET, UserOtp } from "@/lib/type";
+import { prefixRedis, redisClient } from "./client";
+import { sentOTP } from "@/lib/mailer";
 
 
 export const isStudent = (year: AllYears) => {
@@ -58,31 +59,34 @@ export class User {
         await this.updateCache();
     }
 
-    static async createAccount(data: SJCET, number: string) {
+    static async createAccount(data: SJCET, phone: string) {
         const otp = generateOTP()
         console.log(otp)
-        const { otpkey } = this.setKey(number);
+        const { otpkey } = this.setKey(phone);
         const res = await redisClient.set<UserOtp>(otpkey, {
             otp,
             email: data.email
         });
-        return !!res
+
+        const { isSuccess } = await sentOTP(data.email, otp, phone)
+
+        return !!res && isSuccess
     }
 
-    static async verify(otp: number, number: string) {
-        const { otpkey } = this.setKey(number);
+    static async verify(otp: number, phone: string) {
+        const { otpkey } = this.setKey(phone);
 
         const res = await redisClient.get<UserOtp>(otpkey)
 
         if (!res) return null
-        
+
         if (res.otp !== otp) return null
-        
-        const {data, isSJCET} = getDataFromMail(res.email)
-        
+
+        const { data, isSJCET } = getDataFromMail(res.email)
+
         if (!isSJCET) return null
 
-        const user = new this(data, number)
+        const user = new this(data, phone)
         user.updateCache()
 
         redisClient.del(otpkey)
@@ -90,8 +94,8 @@ export class User {
         return user
     }
 
-    static async logout(number: string) {
-        const { key } = this.setKey(number);
+    static async logout(phone: string) {
+        const { key } = this.setKey(phone);
 
         const res = await redisClient.del(key)
 
