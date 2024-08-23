@@ -6,7 +6,7 @@
 To install dependencies:
 
 ```bash
-bun install
+npm install
 ```
 
 To authenticate
@@ -18,5 +18,19 @@ To authenticate
 To run:
 
 ```bash
-bun run dev
+npm run dev
+```
+
+To run docker
+
+```bash
+docker compose --env-file .env  build
+```
+
+```bash
+docker compose --env-file .env config
+```
+
+```bash
+docker compose --env-file .env up
 ```

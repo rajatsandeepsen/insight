@@ -4,17 +4,8 @@ await esbuild.build({
     entryPoints: ['./index.ts'],
     bundle: true,
     outdir: './',
+    platform: "node",
+    format: "esm",
     minify: true,
-    external: [
-        "@ai-sdk/openai",
-        "@upstash/redis",
-        "ai",
-        "jimp",
-        "json-2-csv",
-        "jsonwebtoken",
-        "jsqr",
-        "qrcode-terminal",
-        "whatsapp-web.js",
-        "zod",
-    ]
+    packages: "external",
 })

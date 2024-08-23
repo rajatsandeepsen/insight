@@ -7,8 +7,8 @@ const groq = createOpenAI({
 	apiKey: process.env.GROQ_API_KEY,
 });
 
-// export const model = groq("llama3-8b-8192");
-export const model = groq("llama-3.1-8b-instant");
+export const model = groq("llama3-8b-8192");
+// export const model = groq("llama-3.1-8b-instant");
 
 export const getResponse = async (prompt: string, systemText: string) => (await generateText({
 	prompt,
