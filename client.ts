@@ -3,6 +3,10 @@ import qrcode from 'qrcode-terminal';
 const { Client, LocalAuth } = Whatsapp
 
 const client = new Client({
+    puppeteer: {
+        headless: true,
+        args: ["--no-sandbox"],
+      },
     authStrategy: new LocalAuth({
         dataPath: 'authContainer'
     })

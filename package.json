@@ -3,13 +3,16 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx --env-file=.env ./index.ts",
-    "dev:broadcast": "tsx --env-file=.env ./script/broadcast.ts"
+    "dev": "tsx --env-file .env ./index.ts",
+    "dev:broadcast": "tsx --env-file=.env ./script/broadcast.ts",
+    "start": "node ./index.js",
+    "build": "node ./build.js"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/qrcode-terminal": "^0.12.2",
+    "esbuild": "^0.23.1",
     "tsx": "^4.17.0"
   },
   "peerDependencies": {

@@ -1,0 +1,6 @@
+/.wwebjs_cache
+authContainer
+dist
+node_modules
+.env
+script

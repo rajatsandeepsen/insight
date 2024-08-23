@@ -1,13 +1,12 @@
-import { generateTools } from "@/tools/index";
-import qrcode from 'qrcode-terminal';
 import { User } from "@/cache/user";
 import { client } from "@/client";
 import { extractNumber, getDataFromMail } from "@/lib/email";
-import { tryAsync, trys } from "@/lib/utils";
-import { getUserPrompt, system } from "@/tools/sjcet";
-import { getPromptForQRImages, readQRCode } from "@/lib/image";
 import { verifyToken, type TokenData } from "@/lib/encryption";
+import { getPromptForQRImages, readQRCode } from "@/lib/image";
+import { tryAsync, trys } from "@/lib/utils";
 import { getResponse } from "@/model";
+import { generateTools } from "@/tools/index";
+import { getUserPrompt, system } from "@/tools/sjcet";
 
 client.on('ready', () => {
     console.log('Client is ready!');
