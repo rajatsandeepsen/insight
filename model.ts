@@ -8,6 +8,7 @@ const groq = createOpenAI({
 });
 
 export const model = groq("llama3-8b-8192");
+// export const model = groq("llama-3.1-8b-instant");
 
 export const getResponse = async (prompt: string, systemText: string) => (await generateText({
 	prompt,

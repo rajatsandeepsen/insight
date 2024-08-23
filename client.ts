@@ -1,7 +1,12 @@
 import Whatsapp, { type Chat, type Client as ClientType, type Message } from 'whatsapp-web.js'
+import qrcode from 'qrcode-terminal';
 const { Client, LocalAuth } = Whatsapp
 
-export const client = new Client({
+const client = new Client({
+    puppeteer: {
+        headless: true,
+        args: ["--no-sandbox"],
+      },
     authStrategy: new LocalAuth({
         dataPath: 'authContainer'
     })
@@ -17,4 +22,20 @@ export type ChatOptions = {
     message: Message,
     chat: Chat,
     client: ClientType
+}
+
+client.on('auth_failure', msg => {
+    console.error('AUTHENTICATION FAILURE', msg);
+});
+
+client.on('qr', (qr) => {
+    qrcode.generate(qr, { small: true });
+});
+
+client.on('disconnected', (reason) => {
+    console.log('Client was logged out', reason);
+});
+
+export {
+    client
 }

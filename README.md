@@ -1,15 +1,36 @@
-# insight
+# INSIGHT Bot
+
+![image](https://github.com/user-attachments/assets/b676079b-c1d0-4f4e-831a-61b421d1d017)
+
 
 To install dependencies:
 
 ```bash
-bun install
+npm install
+```
+
+To authenticate
+
+```
+.env.example -> .env
 ```
 
 To run:
 
 ```bash
-bun run index.ts
+npm run dev
 ```
 
-This project was created using `bun init` in bun v1.1.23. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+To run docker
+
+```bash
+docker compose --env-file .env  build
+```
+
+```bash
+docker compose --env-file .env config
+```
+
+```bash
+docker compose --env-file .env up
+```
