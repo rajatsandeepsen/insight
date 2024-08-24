@@ -1,5 +1,5 @@
 import type { AllRoles } from "@/lib/type";
-import { model } from "@/model";
+import { model } from "@/source/model";
 import { generateText, type CoreTool } from "ai";
 import type { Message } from "whatsapp-web.js";
 import { getGuestTools } from "./guest";

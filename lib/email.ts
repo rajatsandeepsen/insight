@@ -1,4 +1,5 @@
-import type { AllDepartments, AllYears, SJCET } from "./type";
+import { z } from "zod";
+import { allDepartments, allYears, type AllDepartments, type AllYears, type SJCET } from "./type";
 
 /**
  * eg: username2025@ai.sjcetpalai.ac.in
@@ -12,7 +13,7 @@ const otherStudentsRegex = /^([a-zA-Z]+)([0-9]{4})\.([a-zA-Z]+)@sjcetpalai\.ac\.
 /**
  * eg: username@sjcetpalai.ac.in
  */
-const globalEmailCase = /^([a-zA-Z]+)@sjcetpalai\.ac\.in$/;
+const globalEmailCase = /^(.+)@sjcetpalai\.ac\.in$/;
 
 export type ReturnGetDataFromMail = {
     isSJCET: true;
@@ -22,56 +23,67 @@ export type ReturnGetDataFromMail = {
     data: null;
 }
 
-export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
-    const email = mail.trim().toLowerCase();
-    const isSJCET = email.endsWith('sjcetpalai.ac.in');
+const verifyData = (y?: string, d?: string) => {
+    const newD = (d === 'es' ? 'ecs' : d) ?? 'NA'
+    const department = newD in allDepartments ? newD : 'NA'
+    const year = y && y in allYears ? y : 'NA'
+    return { year, department } as { year: AllYears, department: AllDepartments }
+}
 
-    if (isSJCET) {
-        const match = email.match(studentsRegex);
+export const sjcetMailSchema = z.string().trim().toLowerCase().email()
+    .refine((mail) => mail.endsWith('sjcetpalai.ac.in'), { message: "Email is not from SJCET Palai" })
 
-        if (match !== null) {
-            const data: SJCET = {
-                year: (match[2] as AllYears) ?? 'NA',
-                department: (match[3] as AllDepartments) === 'es' ? 'ecs' : (match[3] as AllDepartments) ?? 'NA',
-                college: 'SJCET',
-                role: 'student',
-                name: match[1],
-                email,
-            };
-            return { isSJCET, data };
-        }
+export const getDataFromMail = (mail: string): ReturnGetDataFromMail => {
+    const { success, data: email } = sjcetMailSchema.safeParse(mail)
 
-        const otherMatch = email.match(otherStudentsRegex);
+    const isSJCET = success
 
-        if (otherMatch !== null) {
-            const data: SJCET = {
-                year: (otherMatch[2] as AllYears) ?? 'NA',
-                department: (otherMatch[3] as AllDepartments) === 'es' ? 'ecs' : (otherMatch[3] as AllDepartments) ?? 'NA',
-                college: 'SJCET',
-                role: 'student',
-                name: otherMatch[1],
-                email,
-            };
-            return { isSJCET, data };
-        }
+    if (!isSJCET) return { isSJCET, data: null }
+    const match = email.match(studentsRegex);
 
-        const facultyMatch = email.match(globalEmailCase);
-
-        if (facultyMatch) {
-            const data: SJCET = {
-                year: "NA",
-                department: "NA",
-                college: 'SJCET',
-                role: 'student',
-                name: facultyMatch[1],
-                email,
-            }
-            return { isSJCET, data };
-        }
-
-        return { isSJCET:false, data: null };
+    if (match !== null) {
+        const {department, year} = verifyData(match[2], match[3])
+        const data: SJCET = {
+            year,
+            department,
+            college: 'SJCET',
+            role: 'student',
+            name: match[1],
+            email,
+        };
+        return { isSJCET, data };
     }
-    return { isSJCET, data: null };
+
+    const otherMatch = email.match(otherStudentsRegex);
+
+    if (otherMatch !== null) {
+        const {department, year} = verifyData(otherMatch[2], otherMatch[3])
+        const data: SJCET = {
+            year,
+            department,
+            college: 'SJCET',
+            role: 'student',
+            name: otherMatch[1],
+            email,
+        };
+        return { isSJCET, data };
+    }
+
+    const facultyMatch = email.match(globalEmailCase);
+
+    if (facultyMatch) {
+        const data: SJCET = {
+            year: "NA",
+            department: "NA",
+            college: 'SJCET',
+            role: 'student',
+            name: facultyMatch[1],
+            email,
+        }
+        return { isSJCET, data };
+    }
+
+    return { isSJCET: false, data: null };
 };
 
 
@@ -79,7 +91,7 @@ export const getDataFromMail = (mail: string):ReturnGetDataFromMail => {
  * 910000111100 to 0000111100
  */
 
-export const extractNumber = (number:string) => {
+export const extractNumber = (number: string) => {
     const n = number.trim().replace(/\D/g, '');
 
     if (n.length !== 12) throw new Error("Mobile number is not 10 digits")
@@ -88,3 +100,10 @@ export const extractNumber = (number:string) => {
 
     throw new Error("Number outside India is not permitted yet")
 }
+
+// console.log(
+//     getDataFromMail("abcdxyz2025@ai.sjcetpalai.ac.in"),
+//     getDataFromMail("abcdxyz2025.es@sjcetpalai.ac.in"),
+//     getDataFromMail("abcd1234.xyz@sjcetpalai.ac.in"),
+//     getDataFromMail("abcd.xyz@sjcetpalai.ac.in"),
+// )

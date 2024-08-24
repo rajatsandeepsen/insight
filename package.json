@@ -6,12 +6,14 @@
     "dev": "tsx --env-file .env ./index.ts",
     "dev:broadcast": "tsx --env-file=.env ./script/broadcast.ts",
     "start": "node ./index.js",
-    "build": "node ./build.js"
+    "build": "node ./build.js",
+    "generate:certificates": "bun run ./script/certificates/generate-data.ts && bun run ./script/certificates/generate-image.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/nodemailer": "^6.4.15",
+    "@types/qrcode": "^1.5.5",
     "@types/qrcode-terminal": "^0.12.2",
     "esbuild": "^0.23.1",
     "tsx": "^4.17.0"
@@ -28,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "jsqr": "^1.4.0",
     "nodemailer": "^6.9.14",
+    "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.25.0",
     "zod": "^3.23.8"

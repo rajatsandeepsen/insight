@@ -1,0 +1,3 @@
+certificates/**/*.png
+
+!certificates/resources/*

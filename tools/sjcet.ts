@@ -1,10 +1,10 @@
 import type { User } from "@/cache/user";
 import JsonDataAboutSJCET from "@/data/new.sjcet.json";
 import { allDepartments } from "@/lib/type";
-import { getResponse } from "@/model";
+import { getResponse } from "@/source/model";
 import { tool } from "ai";
 import { z } from "zod";
-import type { ToolBaseData } from ".";
+import type { ToolBaseData } from "./index";
 
 
 

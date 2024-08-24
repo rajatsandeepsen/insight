@@ -25,7 +25,7 @@ const QRsystem = `Prompt includes data about an event and user who participated 
 
 export const getPromptForQRImages = (user: ReturnGetDataFromMail, data: ReturnType<typeof verifyToken<TokenData>>["data"]) => {
     const prompt = JSON.stringify({
-        user, event: data.event
+        user, event: data?.event
     })
     const system = QRsystem
     return { prompt, system }

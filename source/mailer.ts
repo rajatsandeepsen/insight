@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { tryAsync } from "./utils";
+import { tryAsync } from "@/lib/utils";
 import { OtpMailTemplate } from "@/data/otp-mail";
 
 const transporter = nodemailer.createTransport({

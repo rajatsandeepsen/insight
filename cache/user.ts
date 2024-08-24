@@ -2,7 +2,7 @@ import { getDataFromMail } from "@/lib/email";
 import { generateOTP } from "@/lib/otp";
 import type { AllYears, SJCET, UserOtp } from "@/lib/type";
 import { prefixRedis, redisClient } from "./client";
-import { sentOTP } from "@/lib/mailer";
+import { sentOTP } from "@/source/mailer";
 
 
 export const isStudent = (year: AllYears) => {

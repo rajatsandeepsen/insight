@@ -1,12 +1,13 @@
 import { User } from "@/cache/user";
-import { client } from "@/client";
+import { client } from "@/source/client";
 import { extractNumber, getDataFromMail } from "@/lib/email";
 import { verifyToken, type TokenData } from "@/lib/encryption";
 import { getPromptForQRImages, readQRCode } from "@/lib/image";
 import { tryAsync, trys } from "@/lib/utils";
-import { getResponse } from "@/model";
+import { getResponse } from "@/source/model";
 import { generateTools } from "@/tools/index";
 import { getUserPrompt, system } from "@/tools/sjcet";
+import Events from "@/data/event.json";
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -16,6 +17,11 @@ client.on('message_create', async (message) => {
 
     if (message.fromMe) return;
     if (message.isStatus) return;
+
+    const oneHourInSeconds = 3600;
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    
+    if (currentTimestamp - message.timestamp > oneHourInSeconds) return
 
     const { number, isUser } = await message.getContact()
 
@@ -38,25 +44,26 @@ client.on('message_create', async (message) => {
                 const { error, data } = await readQRCode(media.data)
 
                 if (error) {
-                    message.reply("Unable to identify QR inside the image");
+                    await message.reply("Unable to identify any QR patterns from the image");
                     return
                 }
 
                 const { data: info, error: infoE } = verifyToken<TokenData>(data)
                 if (infoE) {
-                    message.reply("Unable to token inside QR image");
+                    await message.reply("Invalid QR code (unabled to verify token)");
                     return
                 }
 
                 const user = getDataFromMail(info.email)
                 if (!user.data) {
-                    message.reply("User data is not validated");
+                    await message.reply("User data from QR is not valid");
+                    await message.reply(`\`\`\`\n${JSON.stringify(info, null, 2)}\n\`\`\``);
                     return
                 }
 
                 const { prompt, system } = getPromptForQRImages(user, info)
                 const res = await getResponse(prompt, system)
-                message.reply(res);
+                await message.reply(res);
             }
         }
         return

@@ -1,5 +1,5 @@
 import { createOpenAI, type openai } from "@ai-sdk/openai";
-import { system } from "./tools/sjcet";
+import { system } from "@/tools/sjcet";
 import { generateText } from "ai";
 
 const groq = createOpenAI({
