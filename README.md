@@ -24,7 +24,7 @@ npm run dev
 To run docker
 
 ```bash
-docker compose --env-file .env  build
+docker compose build
 ```
 
 ```bash

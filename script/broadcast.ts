@@ -25,7 +25,6 @@ const getSecondMessage = `NB: If you have any queries regarding the certificate,
 
 Rajat Sandeep
 CTO  SJCET-BOOTCAMP-IEDC
-9846101882
 `
 
 
