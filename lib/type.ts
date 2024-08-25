@@ -34,6 +34,7 @@ export const allYears = {
   '2025': true,
   '2026': true,
   '2027': true,
+  '2028': true,
 } as const; // + "NA" for other users/managements
 
 export type AllYears = keyof typeof allYears;

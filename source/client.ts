@@ -28,6 +28,10 @@ client.on('auth_failure', msg => {
     console.error('AUTHENTICATION FAILURE', msg);
 });
 
+client.on('authenticated', () => {
+    console.log('AUTHENTICATED');
+});
+
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
 });

@@ -13,5 +13,5 @@ export const model = groq("llama3-8b-8192");
 export const getResponse = async (prompt: string, systemText: string) => (await generateText({
 	prompt,
 	model,
-	system: systemText,
+	system: systemText
 })).text

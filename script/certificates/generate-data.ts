@@ -38,3 +38,5 @@ await Bun.write(
     outputJson,
     JSON.stringify(outputJsonData, null, 3)
 )
+
+console.log(`Data generated:\n ${outputCsv}\n ${outputJson}`)

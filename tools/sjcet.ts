@@ -20,11 +20,8 @@ email: ${email}
 Auth status: logged in
 `
 
-export const getUserPrompt = (prompt: string, user?: User["data"], quote?: string) => `Information about User:
-${user ? `${userInfo(user)}` : "User haven't logged into the system yet. Maybe reply user to login & access more functionalities"}
-
-User Prompt: ${prompt}
-`
+export const getUserInfo = (user?: User["data"], quote?: string) => `Information about User:
+${user ? `${userInfo(user)}` : "User haven't logged into the system yet. Maybe ask user to login & access more functionalities"}`
 
 export const newestDataAboutSJCET = JsonDataAboutSJCET as string[]
 
@@ -49,20 +46,21 @@ Bot Anwser: `
 export const getCommonTools = (availableFunctions: string[], toolBaseData: ToolBaseData) => {
     const availableFunc = availableFunctions.concat(["getInformation", "getEvents"])
     return {
-        chat: tool({
-            description: 'Invoke normal conversation like human',
-            parameters: z.object({
-                reply: z.string().describe("reply to user's message/prompt")
-            }),
-            execute: async ({ reply }) => {
-                console.log("Conv:", reply)
+        // chat: tool({
+        //     description: 'reply to user messages',
+        //     parameters: z.object({
+        //         reply: z.string().describe("reply to user's normal messages"),
+        //         userMessage: z.string().describe("User's message")
+        //     }),
+        //     execute: async ({ reply, userMessage }) => {
+        //         console.log("Conv:", userMessage, reply)
 
-                // // const prompt = questionTemaplate(question)
-                // const res = await getResponse(reply, system)
+        //         // // const prompt = questionTemaplate(question)
+        //         // const res = await getResponse(reply, system)
 
-                return reply
-            },
-        }),
+        //         return reply
+        //     },
+        // }),
         getInformation: tool({
             description: 'Get answers for any questions/information about SJCET college',
             parameters: z.object({

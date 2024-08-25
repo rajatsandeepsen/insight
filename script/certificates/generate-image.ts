@@ -7,13 +7,13 @@ const parentFolder = "./script/certificates"
 
 const template1 = (templateImage:Jimp) => ({
     image: {
-        x: 0, y: 1024 + 34, // position
+        x: 0, y: 1024 + 36, // position
         maxX: templateImage.getWidth(),
         maxY: 0 // size
     }, 
     qr: {
         getX: (qrImage:Jimp) => templateImage.getWidth() - qrImage.getWidth() - 75,
-        getY: (qrImage:Jimp) => 75 // position
+        getY: (qrImage:Jimp) => templateImage.getHeight() - qrImage.getHeight() - 68 // position
     }
 })
 const template2 = (templateImage:Jimp) => ({
@@ -41,9 +41,10 @@ const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK)
 
 // biome-ignore lint/complexity/noForEach: <explanation>
 data.forEach(async d => {
+    const copyTemplateImage = templateImage.clone()
     const qrBuffer = await QRCode.toBuffer(d.token)
 
-    templateImage.print(font, template.image.x, template.image.y,
+    copyTemplateImage.print(font, template.image.x, template.image.y,
         {
             text: d.name,
             alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
@@ -53,8 +54,10 @@ data.forEach(async d => {
     );
 
     const qrImage = await Jimp.read(qrBuffer);
-    templateImage.blit(qrImage, template.qr.getX(qrImage) , template.qr.getY(qrImage));
+    copyTemplateImage.blit(qrImage, template.qr.getX(qrImage) , template.qr.getY(qrImage));
 
-    const certificate = `${parentFolder}/${eventId}/${d.email}.${templateImage.getExtension()}`;
-    const done = await templateImage.writeAsync(certificate);
+    const certificate = `${parentFolder}/${eventId}/${d.email}.${copyTemplateImage.getExtension()}`;
+    const done = await copyTemplateImage.writeAsync(certificate);
 })
+
+console.log(`Certificates generated for ${data.length} participants`)

@@ -6,8 +6,9 @@ import { getPromptForQRImages, readQRCode } from "@/lib/image";
 import { tryAsync, trys } from "@/lib/utils";
 import { getResponse } from "@/source/model";
 import { generateTools } from "@/tools/index";
-import { getUserPrompt, system } from "@/tools/sjcet";
+import { getUserInfo, system } from "@/tools/sjcet";
 import Events from "@/data/event.json";
+import { convertChat } from "./lib/chat";
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -71,18 +72,23 @@ client.on('message_create', async (message) => {
 
     console.log("Q:", message.body);
 
-    const AITools = await generateTools({ role, number: validatedNumber })
+    const AITools = await generateTools({ role, number: validatedNumber }, user ?? undefined)
 
     const chat = await message.getChat();
     chat.sendSeen();
     chat.sendStateTyping();
+    const messages = convertChat(
+        await chat.fetchMessages({ limit: 10 }),
+        message.body,
+        getUserInfo(user?.data)
+    )
 
     AITools({
         system,
-        prompt: getUserPrompt(message.body, user?.data)
+        messages,
     }).then(reply => {
 
-        if (reply.text && reply.toolResults.length === 0) {
+        if (reply.text) {
             console.log("A:", reply.text)
             message.reply(reply.text)
         }
