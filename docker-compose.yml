@@ -3,11 +3,38 @@ services:
   bot:
     build:
       dockerfile: Dockerfile
+    depends_on:
+      - srh
     container_name: insight-bot
     env_file: .env
     ports:
       - '3000:3000'
     volumes:
-      - ./:/node_modules
-      - ./:/authContainer
-      - ./:/.wwebjs_cache
+      - bot_data:/node_modules
+      - bot_data:/authContainer
+      - bot_data:/.wwebjs_cache
+  
+  redis:
+    image: redis:latest
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+      
+  srh:
+    image: hiett/serverless-redis-http:latest
+    ports:
+      - '8079:80'
+    depends_on:
+      - redis
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: ${UPSTASH_REDIS_TOKEN}
+      SRH_CONNECTION_STRING: 'redis://redis:6379'
+
+volumes:
+  redis_data:
+  bot_data:
