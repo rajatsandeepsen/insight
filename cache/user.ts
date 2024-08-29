@@ -40,11 +40,11 @@ export class User {
     }
 
     static async get(number: string) {
-        const { key } = this.setKey(number);
+        const { key } = User.setKey(number);
         const data = await redisClient.get<SJCET>(key);
         if (!data) return null;
 
-        return new this(data, number);
+        return new User(data, number);
     }
 
     private async delete() {
@@ -56,13 +56,17 @@ export class User {
         this.data.department = department ?? "NA"
         this.data.year = year ?? "NA"
 
+        if (this.data.role) {
+
+        }
+
         await this.updateCache();
     }
 
     static async createAccount(data: SJCET, phone: string) {
         const otp = generateOTP()
         console.log(otp)
-        const { otpkey } = this.setKey(phone);
+        const { otpkey } = User.setKey(phone);
         const res = await redisClient.set<UserOtp>(otpkey, {
             otp,
             email: data.email
@@ -73,8 +77,9 @@ export class User {
         return !!res && isSuccess
     }
 
-    static async verify(otp: number, phone: string) {
-        const { otpkey } = this.setKey(phone);
+    static async verify(some: { otp: number, phone: string }) { // callback?: AnyFunc<[User["data"]]>) {
+        const { otp, phone } = some
+        const { otpkey } = User.setKey(phone);
 
         const res = await redisClient.get<UserOtp>(otpkey)
 
@@ -86,16 +91,18 @@ export class User {
 
         if (!isSJCET) return null
 
-        const user = new this(data, phone)
+        const user = new User(data, phone)
         user.updateCache()
 
         redisClient.del(otpkey)
+
+        // if (callback) callback(user.data)
 
         return user
     }
 
     static async logout(phone: string) {
-        const { key } = this.setKey(phone);
+        const { key } = User.setKey(phone);
 
         const res = await redisClient.del(key)
 

@@ -21,7 +21,7 @@ client.on('message_create', async (message) => {
 
     const oneHourInSeconds = 3600;
     const currentTimestamp = Math.floor(Date.now() / 1000);
-    
+
     if (currentTimestamp - message.timestamp > oneHourInSeconds) return
 
     const { number, isUser } = await message.getContact()
@@ -72,21 +72,20 @@ client.on('message_create', async (message) => {
 
     console.log("Q:", message.body);
 
-    const AITools = await generateTools({ role, number: validatedNumber }, user ?? undefined)
-
     const chat = await message.getChat();
+    const AITools = await generateTools({ chat, role, number: validatedNumber }, user ?? undefined)
+
     chat.sendSeen();
     chat.sendStateTyping();
+    console.log("L:", await chat.getLabels())
+
     const messages = convertChat(
         await chat.fetchMessages({ limit: 10 }),
         message.body,
         getUserInfo(user?.data)
     )
 
-    AITools({
-        system,
-        messages,
-    }).then(reply => {
+    AITools({ messages }).then(reply => {
 
         if (reply.text) {
             console.log("A:", reply.text)
@@ -102,6 +101,18 @@ client.on('message_create', async (message) => {
                 message.reply(toolResult.result);
                 return;
             }
+            // else {
+            //     for (const small of toolResult.result.toolResults) {
+            //         console.log("S_A:", small.toolName)
+            //         console.log("S_Arg:", small.args)
+
+            //         if (typeof small.result === "string") {
+
+            //             message.reply(small.result);
+            //             return;
+            //         }
+            //     }
+            // }
 
             // if (toolResult.result instanceof WA.Buttons) {
             //     const buttons = toolResult.result;

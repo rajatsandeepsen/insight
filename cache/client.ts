@@ -5,6 +5,6 @@ export const redisClient = new Redis({
     token: process.env.UPSTASH_REDIS_TOKEN,
 })
 
-export const prefixRedis = process.env.NODE_ENV === "production" ? "" : "insight:"
+export const prefixRedis = process.env.NODE_ENV === "production" ? "" : "dev:"
 
 console.log("Redis prefix", `"${prefixRedis}"`)

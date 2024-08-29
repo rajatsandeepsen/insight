@@ -3,9 +3,11 @@ import { tool } from "ai"
 import type { ToolBaseData } from "./index"
 import { z } from "zod";
 import { User } from "@/cache/user";
+import { convertLabels } from "@/lib/chat";
+import { client } from "@/source/client";
 
 export const getGuestTools = (toolBaseData: ToolBaseData) => {
-    const { number } = toolBaseData
+    const { number, chat } = toolBaseData
 
     return {
         login: tool({
@@ -34,14 +36,21 @@ export const getGuestTools = (toolBaseData: ToolBaseData) => {
         }),
 
         verifyOTP: tool({
-            description: 'Only If user prompt contains 6 digit number',
+            description: 'Only If user prompt contains 6 digit number (OTP) to verify the login process',
             parameters: z.object({
                 otp: z.number().min(99999).max(999999).describe("The 6 digit OTP")
             }),
             execute: async ({ otp }) => {
-                const student = await User.verify(otp, number)
+                const student = await User.verify({ otp, phone: number })
 
-                if (student) return `Welcome ${student.data.name} 👋\n\n OTP is verified ✅\nLogined as ${student.data.role}`
+                if (student) {
+                    const labels = await client.getLabels()
+                    const newL = convertLabels(labels, student.data)
+                    chat.changeLabels(newL)
+                        .then(e => console.log("Labels changed", newL))
+                        .catch(e => console.log("Label Error", e))
+                    return `Welcome ${student.data.name} 👋\n\n OTP is verified ✅\nLogined as ${student.data.role}`
+                }
 
                 return `Something wrong, Please paste correct OTP from mail`
             },

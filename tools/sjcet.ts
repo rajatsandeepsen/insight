@@ -8,7 +8,8 @@ import type { ToolBaseData } from "./index";
 
 
 
-export const system = "You are a helpful and talkative whatsapp bot named 'Insight', built for users at SJCET Palai college. Respond to prompt like human and invoke tools if need."
+export const system = "You are a helpful and talkative whatsapp bot named 'Insight', built for users at SJCET Palai college. Respond to prompt like human, incorporate more emojis into the responses and invoke tools only if need."
+export const systemGetINfo = "You are helping to extract useful information to anwser the given question. End generation after anwsering the question"
 
 const userInfo = ({ department, email, name, year, role }: User["data"]) =>
     `Info about user: 
@@ -41,10 +42,9 @@ Newest Information: ${newestDataAboutSJCET.join("\n")}
 Instruction: Answer the following questions from above data. If question is not about SJCET, just say "Im not created for these kind of messages"
 
 User's Question: ${questions}
-Bot Anwser: `
+Anwser: `
 
-export const getCommonTools = (availableFunctions: string[], toolBaseData: ToolBaseData) => {
-    const availableFunc = availableFunctions.concat(["getInformation", "getEvents"])
+export const getCommonTools = (toolBaseData: ToolBaseData) => {
     return {
         // chat: tool({
         //     description: 'reply to user messages',
@@ -70,7 +70,7 @@ export const getCommonTools = (availableFunctions: string[], toolBaseData: ToolB
                 console.log("Searching for:", question)
 
                 const prompt = questionTemaplate(question)
-                const res = await getResponse(prompt, system)
+                const res = await getResponse(prompt, systemGetINfo)
 
                 return res
             },
@@ -88,17 +88,11 @@ export const getCommonTools = (availableFunctions: string[], toolBaseData: ToolB
         }),
 
         actionNotAvailable: tool({
-            description: 'If prompt includes any unavailable action to perform',
+            description: 'When user asks to perform actions not available in the system',
             parameters: z.object({
                 actionName: z.string().describe("unavailable action name")
             }),
             execute: async ({ actionName }) => `Action: "${actionName}" is not available`
         }),
-
-        getAvailableFunction: tool({
-            description: 'Get available tool functionalities the bot can do',
-            parameters: z.object({}),
-            execute: async () => `${availableFunc.map(e => `- ${e}`).join("\n")}\n\n These are some functions available to you. Login or upgrade your privilage to access more`
-        })
     }
 }
