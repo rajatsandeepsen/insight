@@ -4,16 +4,16 @@ import { dataZod, type CertificateZod } from "./validation";
 import { MessageMedia } from "whatsapp-web.js";
 
 const json = dataZod.parse(JsonData)
-const id = "insendium-24"
+const id = "top20coders-24-participation"
 const imageFolder = `./script/certificates/${id}`
 
 const getMessages = (data: CertificateZod[0]) => {
     const { name } = data
     return `Hello  ${name}! 
-Here's your INSENDIUM'24 certificate.
+Here's your Top 20 Coders 2024 Certificate of Participation.
 
-On behalf of SJCET-BOOTCAMP-IEDC, we express our sincere gratitude and profound appreciation for your participation in our program. 
-We are very excited to welcome you to our bootcamp family and grow together. We will be back with more competitions and workshops. 
+On behalf of all the tech communities in SJCET, we express our sincere gratitude and profound appreciation for your participation in our program. 
+We are very excited to welcome you to our coding family and grow together. We will be back with more competitions and workshops. 
 We look forward to your continued involvement and cooperation in our future ventures. 
 
 Thank you 😊
@@ -24,7 +24,7 @@ ${getSecondMessage}`
 const getSecondMessage = `NB: If you have any queries regarding the certificate, please contact us on whatsapp.
 
 Rajat Sandeep
-CTO  SJCET-BOOTCAMP-IEDC
+CTO IEDC SJCET
 `
 
 

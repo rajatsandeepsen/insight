@@ -6,5 +6,21 @@
         "certificateType": "participation",
         "description": "An ideation workshop. To develop skills in identifying and validating problems, finding solutions, and applying design thinking",
         "link": "https://www.instagram.com/reel/C-5Y12nS1Pq"
+    },
+    "top5coders-24-winner": {
+        "title": "Top 20 Coders 2024",
+        "organisedBy": "IEDC",
+        "activityPoints": 5,
+        "certificateType": "winner",
+        "description": "A project based coding competition. To find the top 20 coders in SJCET Palai. They built the best projects in 2024. Winners were awarded with certificates and trophies at the inauguration of INSENDIUM'24",
+        "link": "https://www.instagram.com/p/C-epC8VSlr6"
+    },
+    "top20coders-24-participation": {
+        "title": "Top 20 Coders 2024",
+        "organisedBy": "IEDC",
+        "activityPoints": 0,
+        "certificateType": "participation",
+        "description": "A project based coding competition. To find the top 20 coders in SJCET Palai. They done a great job building and submitted their quality projects on time",
+        "link": "https://www.instagram.com/p/C-epC8VSlr6"
     }
 }

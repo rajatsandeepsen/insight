@@ -1,3 +1,4 @@
 certificates/**/*.png
 
 !certificates/resources/*
+!certificates/resources/font/*

@@ -3,7 +3,7 @@ import { createToken } from "@/lib/encryption";
 import { csvToJsonZod } from '@/script/validation';
 import Certificates from "@/data/certificate.json";
 
-const id = "insendium-24"
+const id = "top20coders-24-participation"
 const certificate = Certificates[id]
 const parentFolder = "./script/certificates"
 
