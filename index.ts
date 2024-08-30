@@ -9,6 +9,7 @@ import { generateTools } from "@/tools/index";
 import { getUserInfo, system } from "@/tools/sjcet";
 import Events from "@/data/event.json";
 import { convertChat } from "./lib/chat";
+import { getTranscript } from "./source/voice";
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -36,7 +37,10 @@ client.on('message_create', async (message) => {
 
     const role = user?.data.role ?? "NA"
 
-    if (message.hasMedia) {
+    let messText = message.type === "chat" ? message.body : undefined
+    // let replyType = "chat"
+
+    if (message.hasMedia && message.type === "image") {
         const media = await message.downloadMedia();
         switch (media.mimetype) {
             case "image/jpeg":
@@ -70,7 +74,18 @@ client.on('message_create', async (message) => {
         return
     }
 
-    console.log("Q:", message.body);
+    if (message.hasMedia && (message.type === "audio" || message.type === "ptt")) {
+        const audio = await message.downloadMedia();
+        console.log("Audio:", audio.mimetype)
+        const text = await getTranscript(audio.data)
+        if (text) {
+            messText = text
+        }
+    }
+
+    console.log("Q:", messText);
+
+    if (!messText || messText.length === 0) return
 
     const chat = await message.getChat();
     const AITools = await generateTools({ chat, role, number: validatedNumber }, user ?? undefined)
@@ -81,9 +96,11 @@ client.on('message_create', async (message) => {
 
     const messages = convertChat(
         await chat.fetchMessages({ limit: 10 }),
-        message.body,
+        messText,
         getUserInfo(user?.data)
     )
+
+    console.log("M:", messages)
 
     AITools({ messages }).then(reply => {
 
