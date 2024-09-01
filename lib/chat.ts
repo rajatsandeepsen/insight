@@ -2,6 +2,20 @@ import type { CoreMessage } from "ai";
 import type { Label, Message } from "whatsapp-web.js";
 import type { SJCET } from "./type";
 
+export const GetEmojiAndText = (str: string) => {
+    const emojiRegex = /^(?<emoji>\p{Emoji}+)(?<text>.*)$/u;
+    const match = str.match(emojiRegex);
+
+    if (match && match.groups) {
+        const { emoji, text } = match.groups
+        return {
+            emoji, text
+        }
+    }
+
+    return null
+}
+
 export const convertChat = (messages: Message[], lastMessage: string, secondLastSystem: string): CoreMessage[] => {
     const chat: CoreMessage[] = messages.map(message => {
         return {
