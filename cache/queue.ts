@@ -3,10 +3,11 @@ import { prefixRedis, redisClient } from "./client";
 import type WAWebJS from "whatsapp-web.js";
 import type { generateTools } from "@/tools";
 import type { User } from "./user";
-import { GetEmojiAndText } from "@/lib/chat";
+import { extractFromText } from "@/lib/chat";
 
 type Message = WAWebJS.Message
 type GetReturn<T extends AsyncAnyFunc> = Awaited<ReturnType<T>>
+type Tools = GetReturn<GetReturn<typeof generateTools>>
 
 const emoji: Record<string, CoreMessage["role"]> = {
     "🤖": "assistant",
@@ -14,14 +15,15 @@ const emoji: Record<string, CoreMessage["role"]> = {
     "🖥": "system"
 }
 
+
 export class MessageQueues {
     private key
     public coreMessages: CoreMessage[]
+    public texts: string[] = []
 
     constructor(private number: string, private messages: Message[]) {
         this.number = number;
         this.key = MessageQueues.setKey(number);
-
         this.coreMessages = MessageQueues.MessageToCore(messages)
     }
 
@@ -34,43 +36,42 @@ export class MessageQueues {
             const mm = m.body.trim()
 
             if (!m.fromMe) return {
-                content: m.body,
+                content: mm,
                 role: "user"
-            }
+            } as CoreMessage
 
-            const res = GetEmojiAndText(mm)
-            if (!res) return {
-                role: "assistant",
-                content: mm
-            }
+            const { role, content } = extractFromText(mm)
 
-            const role = emoji[res.emoji] ?? "assistant"
-
-            if (role === "tool") return {
-                role,
-                content: [{
-                    // todo
-                }] as ToolContent
-            }
+            if (role === "tool")
+                return {
+                    role,
+                    content: [{
+                        toolName: content.toolName,
+                        result: `invoked tool with args: ${JSON.stringify(content.args)}`,
+                    }] as ToolContent
+                }
 
             return {
                 role,
-                content: res.text
-            }
+                content
+            } as CoreMessage
         })
     }
 
-    static CoreToMessage(toolResults: GetReturn<GetReturn<typeof generateTools>>["toolResults"]) {
+    static CoreToMessage(toolResults: Tools["toolResults"]) {
         const texts: string[] = []
         for (const toolResult of toolResults) {
             console.log("A:", toolResult.toolName)
             console.log("Arg:", toolResult.args)
 
-            if (typeof toolResult.result === "string") {
-                texts.push(toolResult.result);
-            }
+            texts.push(`> \`\`\`${toolResult.toolName}(${JSON.stringify(toolResult.args)})\`\`\``)
 
-            // 
+            if (typeof toolResult.result === "string") {
+                texts.push("`" + toolResult.result + "`");
+            }
+            else {
+                texts.push("`" + JSON.stringify(toolResult.result) + "`");
+            }
         }
 
         return texts
@@ -83,14 +84,17 @@ export class MessageQueues {
         await redisClient.del(this.key);
     }
 
-    async reply(reply: GetReturn<GetReturn<typeof generateTools>>) {
-        const texts: string[] = []
+    async reply(reply: Tools) {
         if (reply.text) {
             console.log("A:", reply.text)
-            texts.push(reply.text)
+            this.texts.push(reply.text)
         }
 
-        return texts.concat(MessageQueues.CoreToMessage(reply.toolResults))
+        if (reply.toolResults)
+            this.texts = this.texts.concat(MessageQueues.CoreToMessage(reply.toolResults))
+
+        // if (reply.toolCalls)
+        //     this.texts = this.texts.concat(MessageQueues.CoreToMessage1(reply.toolCalls))
     }
     async update(userData?: User["data"]) {
         const status = await this.get()
@@ -110,3 +114,40 @@ export class MessageQueues {
         ])
     }
 }
+
+const message = [
+    {
+        fromMe: true,
+        body: "`system`"
+    },
+    {
+        fromMe: true,
+        body: "llm"
+    },
+    {
+        fromMe: true,
+        body: '> tools({"email":"HI"})'
+    },
+]
+
+// @ts-ignore
+const x = new MessageQueues("1234567890", message)
+
+console.log(x.coreMessages)
+// @ts-ignore
+await x.reply({
+    toolResults: [{
+        args: {
+            email: "qwertyui",
+        },
+        result: "12345678",
+        toolCallId: "12345678",
+        toolName: "login",
+        type: "tool-result"
+    }]
+})
+// @ts-ignore
+await x.reply({ text: "hi" })
+// @ts-ignore
+await x.reply({})
+console.log(x.texts)
