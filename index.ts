@@ -10,6 +10,7 @@ import { getUserInfo, system } from "@/tools/sjcet";
 import Events from "@/data/event.json";
 import { convertChat } from "./lib/chat";
 import { getTranscript } from "./source/voice";
+import { MessageQueues } from "./cache/queue";
 
 client.on('ready', () => {
     console.log('Client is ready!');
@@ -36,9 +37,9 @@ client.on('message_create', async (message) => {
     // if (userError) return
 
     const role = user?.data.role ?? "NA"
+    const chat = await message.getChat();
+    const MSQ = new MessageQueues(validatedNumber)
 
-    let messText = message.type === "chat" ? message.body : undefined
-    // let replyType = "chat"
 
     if (message.hasMedia && message.type === "image") {
         const media = await message.downloadMedia();
@@ -46,22 +47,31 @@ client.on('message_create', async (message) => {
             case "image/jpeg":
             case "image/png": {
 
+                await message.reply(
+                    MessageQueues.getToolText("getQRfromImage")
+                );
                 const { error, data } = await readQRCode(media.data)
 
                 if (error) {
-                    await message.reply("Unable to identify any QR patterns from the image");
+                    await message.reply(
+                        MessageQueues.getSystemText("Unable to identify any QR patterns from the image")
+                    )
                     return
                 }
 
                 const { data: info, error: infoE } = verifyToken<TokenData>(data)
                 if (infoE) {
-                    await message.reply("Invalid QR code (unabled to verify token)");
+                    await message.reply(
+                        MessageQueues.getSystemText("Invalid QR code image (unabled to verify token)")
+                    );
                     return
                 }
 
                 const user = getDataFromMail(info.email)
                 if (!user.data) {
-                    await message.reply("User data from QR is not valid");
+                    await message.reply(
+                        MessageQueues.getSystemText("User data from QR code image is not valid")
+                    );
                     await message.reply(`\`\`\`\n${JSON.stringify(info, null, 2)}\n\`\`\``);
                     return
                 }
@@ -74,75 +84,34 @@ client.on('message_create', async (message) => {
         return
     }
 
-    if (message.hasMedia && (message.type === "audio" || message.type === "ptt")) {
-        const audio = await message.downloadMedia();
-        console.log("Audio:", audio.mimetype)
-        const text = await getTranscript(audio.data)
-        if (text) {
-            messText = text
-        }
-    }
-
-    console.log("Q:", messText);
-
-    if (!messText || messText.length === 0) return
-
-    const chat = await message.getChat();
-    const AITools = await generateTools({ chat, role, number: validatedNumber }, user ?? undefined)
-
+    await MSQ.updateStatus(user?.data)
     chat.sendSeen();
     chat.sendStateTyping();
     console.log("L:", await chat.getLabels())
 
-    const messages = convertChat(
-        await chat.fetchMessages({ limit: 10 }),
-        messText,
-        getUserInfo(user?.data)
-    )
+    if (message.hasMedia && (message.type === "audio" || message.type === "ptt")) {
+        const audio = await message.downloadMedia();
+        await message.reply(MessageQueues.getToolText("getTranscript"))
+        const text = await getTranscript(audio.data)
+        if (text) {
+            await message.reply(MessageQueues.getSystemText(`Transcription: ${text}`))
+        }
+    }
+
+    MSQ.addMessage(await chat.fetchMessages({ limit:10 }))
+
+
+    const AITools = await generateTools({ chat, role, number: validatedNumber }, user ?? undefined)
+
+    const messages = MSQ.coreMessages
 
     console.log("M:", messages)
 
-    AITools({ messages }).then(reply => {
-
-        if (reply.text) {
-            console.log("A:", reply.text)
-            message.reply(reply.text)
-        }
-
-        for (const toolResult of reply.toolResults) {
-            console.log("A:", toolResult.toolName)
-            console.log("Arg:", toolResult.args)
-
-            if (typeof toolResult.result === "string") {
-
-                message.reply(toolResult.result);
-                return;
-            }
-            // else {
-            //     for (const small of toolResult.result.toolResults) {
-            //         console.log("S_A:", small.toolName)
-            //         console.log("S_Arg:", small.args)
-
-            //         if (typeof small.result === "string") {
-
-            //             message.reply(small.result);
-            //             return;
-            //         }
-            //     }
-            // }
-
-            // if (toolResult.result instanceof WA.Buttons) {
-            //     const buttons = toolResult.result;
-            //     client.sendMessage(message.from, buttons);
-            //     return;
-            // }
-            // if (toolResult.result instanceof WA.List) {
-            //     const list = toolResult.result;
-            //     client.sendMessage(message.from, list);
-            //     return;
-            // }
-        }
-    })
+    AITools({ messages })
+        .then(async reply => {
+            await MSQ.sentTools(reply)
+            await Promise.all(MSQ.texts.map((m, i) => message.reply(m)))
+        })
         .catch(err => {
             console.error(err);
             message.reply("An error occurred while processing your request. Please try again later.");

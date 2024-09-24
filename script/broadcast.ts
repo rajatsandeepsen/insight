@@ -4,21 +4,28 @@ import { dataZod, type CertificateZod } from "./validation";
 import { MessageMedia } from "whatsapp-web.js";
 
 const json = dataZod.parse(JsonData)
-const id = "top20coders-24-participation"
+const id = "hackathon-qr"
 const imageFolder = `./script/certificates/${id}`
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 const getMessages = (data: CertificateZod[0]) => {
-    const { name } = data
-    return `Hello  ${name}! 
-Here's your Top 20 Coders 2024 Certificate of Participation.
+    const { team, name, token} = data
+    return `Hey ${team ?? name} 👋,
 
-On behalf of all the tech communities in SJCET, we express our sincere gratitude and profound appreciation for your participation in our program. 
-We are very excited to welcome you to our coding family and grow together. We will be back with more competitions and workshops. 
-We look forward to your continued involvement and cooperation in our future ventures. 
+Congratulations on completing the Hackathon ideation stage! 🎉
 
-Thank you 😊
+Here is your form to submit the problem statement
+${token}
 
-${getSecondMessage}`
+*If there is any missing data, please fill that one too.*
+If you have any queries regarding the idea submission, please call any mentors.
+
+
+Rajat Sandeep
+CTO IEDC SJCET
+
+*NB: always use sjcet college email of each members to fill the form.*`
 }
 
 const getSecondMessage = `NB: If you have any queries regarding the certificate, please contact us on whatsapp.
@@ -39,15 +46,19 @@ client.on('ready', () => {
 
         client.isRegisteredUser(`91${number}@c.us`)
             .then(async (isRegistered) => {
+                await sleep(1000)
                 if (isRegistered) {
-                    const imagePath = imageFolder + `/${email}.png`
-                    const media = MessageMedia.fromFilePath(imagePath);
+                    const id = `91${number}@c.us`
 
-                    const first = await client.sendMessage(`91${number}@c.us`, media, { 
-                        caption: getMessages(data), 
-                        sendMediaAsDocument: true,
-                    });
+                    // const imagePath = imageFolder + `/${email}.png`
+                    // const media = MessageMedia.fromFilePath(imagePath);
+
+                    // const first = await client.sendMessage(id, media, { 
+                    //     caption: getMessages(data), 
+                    //     // sendMediaAsDocument: true,
+                    // });
                     // const done = await first.reply(getSecondMessage)
+                    const done = await client.sendMessage(id, getMessages(data))
                     console.log(`${i}. Sent to ${number} ✅`)
                 }
                 else {

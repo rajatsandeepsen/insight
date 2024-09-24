@@ -177,4 +177,5 @@ dist
 
 .wwebjs_cache
 authContainer/*
+localAuth/*
 index.js

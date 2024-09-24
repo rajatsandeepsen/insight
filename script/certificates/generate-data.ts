@@ -3,7 +3,7 @@ import { createToken } from "@/lib/encryption";
 import { csvToJsonZod } from '@/script/validation';
 import Certificates from "@/data/certificate.json";
 
-const id = "top20coders-24-participation"
+const id = "sih-24-participation"
 const certificate = Certificates[id]
 const parentFolder = "./script/certificates"
 
@@ -26,7 +26,7 @@ const outputJsonData = validatedJson.map(e => ({
 
 const outputCsv = `${parentFolder}/out.csv`;
 
-const outputData = json2csv(outputJsonData)
+const outputData = json2csv(validatedJson)
 
 await Bun.write(
     outputCsv,

@@ -7,7 +7,9 @@
     "dev:broadcast": "tsx --env-file=.env ./script/broadcast.ts",
     "start": "node ./index.js",
     "build": "node ./build.js",
-    "generate:certificates": "bun run ./script/certificates/generate-data.ts && bun run ./script/certificates/generate-image.ts"
+    "generate-data": "bun run ./script/certificates/generate-data.ts",
+    "generate-image": "bun run ./script/certificates/generate-image.ts",
+    "broadcast": "bun run ./script/broadcast.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
