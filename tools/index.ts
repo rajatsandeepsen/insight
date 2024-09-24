@@ -31,7 +31,7 @@ export const generateTools = async (toolBaseData: ToolBaseData, user?: User) => 
     } as ReturnType<typeof getGuestTools>
 
     const someToolKeys = Object.keys(tools)
-    Object.assign(tools, getCommonTools(someToolKeys, toolBaseData))
+    Object.assign(tools, getCommonTools(toolBaseData))
     const toolKeys = Object.keys(tools)
 
     console.log("T:", toolKeys.join(", "))

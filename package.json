@@ -7,7 +7,9 @@
     "dev:broadcast": "tsx --env-file=.env ./script/broadcast.ts",
     "start": "node ./index.js",
     "build": "node ./build.js",
-    "generate:certificates": "bun run ./script/certificates/generate-data.ts && bun run ./script/certificates/generate-image.ts"
+    "generate-data": "bun run ./script/certificates/generate-data.ts",
+    "generate-image": "bun run ./script/certificates/generate-image.ts",
+    "broadcast": "bun run ./script/broadcast.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -25,6 +27,7 @@
     "@ai-sdk/openai": "^0.0.45",
     "@upstash/redis": "^1.34.0",
     "ai": "^3.3.6",
+    "groq-sdk": "^0.6.1",
     "jimp": "^0.22.12",
     "json-2-csv": "^5.5.5",
     "jsonwebtoken": "^9.0.2",

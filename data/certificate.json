@@ -22,5 +22,13 @@
         "certificateType": "participation",
         "description": "A project based coding competition. To find the top 20 coders in SJCET Palai. They done a great job building and submitted their quality projects on time",
         "link": "https://www.instagram.com/p/C-epC8VSlr6"
+    },
+    "sih-24-participation": {
+        "title": "Smart India Hackathon Prelims 2024",
+        "organisedBy": "IEDC",
+        "activityPoints": 5,
+        "certificateType": "participation",
+        "description": "A nationwide competition where students from all over India come together to solve real-world problems faced by different government departments and industries",
+        "link": ""
     }
 }
