@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - srh
+      - postgres
     container_name: insight-bot
     env_file: .env
     ports:
@@ -13,6 +14,20 @@ services:
       - bot_data:/node_modules
       - bot_data:/authContainer
       - bot_data:/.wwebjs_cache
+
+  postgres:
+    image: postgres@latest
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgres
   
   redis:
     image: redis:latest
@@ -38,3 +53,4 @@ services:
 volumes:
   redis_data:
   bot_data:
+  postgres_data:
