@@ -19,7 +19,7 @@ type MailOptions = {
     html?: string  
 }
 
-const sentMail = async (props:MailOptions) => {
+export const sentMail = async (props:MailOptions) => {
     return await tryAsync(async () => await transporter.sendMail(props))
 }
 

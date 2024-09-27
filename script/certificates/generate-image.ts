@@ -28,11 +28,23 @@ const template2 = (templateImage: Jimp) => ({
     }
 })
 
+const template3 = (templateImage: Jimp) => ({
+    image: {
+        x: 0, y: 0, // position
+        maxY: templateImage.getHeight() / 2,
+        maxX: templateImage.getWidth()// size
+    },
+    qr: {
+        getX: (qrImage: Jimp) => templateImage.getWidth() / 2 - qrImage.getWidth() / 2, // position
+        getY: (qrImage: Jimp) => templateImage.getHeight() / 3 - 20
+    }
+})
+
 
 const data = dataZod.parse(JsonData) //.slice(4, 5)
-const eventId = "insendium-24"
+const eventId = "sih-24-participation"
 
-const fileName = `${eventId}.png` // 'template1.png'
+const fileName =  `${eventId}.png` // 'template1.png'
 const templateImage = await Jimp.read(`${parentFolder}/resources/${fileName}`)
 const template = template1(templateImage) // template1(templateImage)
 
@@ -43,18 +55,19 @@ const font = await Jimp.loadFont(`${parentFolder}/resources/font/spacemono-bold.
 // biome-ignore lint/complexity/noForEach: <explanation>
 data.forEach(async d => {
     const copyTemplateImage = templateImage.clone()
-    const qrBuffer = await QRCode.toBuffer(d.token)
+    const qrBuffer = await QRCode.toBuffer(d?.token ?? "")
     
     copyTemplateImage.print(font, template.image.x, template.image.y,
         {
-            text: d.name,
+            text: d.team ?? d.name,
             alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE,
+            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE + 10,
         },
         template.image.maxX, template.image.maxY
     );
 
-    const qrImage = await Jimp.read(qrBuffer);
+    // const qrImage = await (await Jimp.read(qrBuffer)).scale(4)
+    const qrImage = await Jimp.read(qrBuffer)
     copyTemplateImage.blit(qrImage, template.qr.getX(qrImage), template.qr.getY(qrImage));
 
     const certificate = `${parentFolder}/${eventId}/${d.email}.${copyTemplateImage.getExtension()}`;
