@@ -14,6 +14,7 @@ export const allDepartments = {
   ec: 'Electronics and Communication',
   cs: 'Computer Science',
   cy: 'Cyber Security',
+  ct: 'Computer Technology (AI)',
   ecs: 'Electronics and Computer Science',
   ee: 'Electrical Engineering',
   ce: 'Civil Engineering',

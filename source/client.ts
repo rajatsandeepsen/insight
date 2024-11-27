@@ -9,6 +9,7 @@ const client = new Client({
       },
     authStrategy: new LocalAuth({
         dataPath: 'authContainer'
+        // dataPath: 'localAuth'
     })
 });
 

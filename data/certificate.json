@@ -30,5 +30,13 @@
         "certificateType": "participation",
         "description": "A nationwide competition where students from all over India come together to solve real-world problems faced by different government departments and industries",
         "link": ""
+    },
+    "fossday-24": {
+        "title": "FOSSDAY 2024",
+        "organisedBy": "NEXUSSJCET",
+        "activityPoints": 10,
+        "certificateType": "participation",
+        "description": "A day-long meetup & workshop on Free and Open Source Software. To introduce students to the world of open source software and its importance",
+        "link": "https://nexus.sjcetpalai.ac.in/fossday"
     }
 }

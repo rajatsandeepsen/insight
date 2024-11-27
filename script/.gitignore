@@ -1,4 +1,7 @@
-certificates/**/*.png
+**/*.png
+**/*.json
+**/*.csv
+**/*.zip
 
 !certificates/resources/*
 !certificates/resources/font/*
