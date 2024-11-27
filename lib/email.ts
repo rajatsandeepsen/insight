@@ -33,16 +33,22 @@ const verifyData = (y?: string, d?: string) => {
 export const sjcetMailSchema = z.string().trim().toLowerCase().email()
     .refine((mail) => mail.endsWith('sjcetpalai.ac.in'), { message: "Email is not from SJCET Palai" })
 
-export const getDataFromMail = (mail: string): ReturnGetDataFromMail => {
-    const { success, data: email } = sjcetMailSchema.safeParse(mail)
+const sjcetMailSchemaWithoutZod = (mail: string) => {
+    const email = mail.trim().toLowerCase()
+    if (!email.endsWith('sjcetpalai.ac.in'))
+        return { success: false, data: null } as const
+    return { success: true, data: email } as const
+}
 
-    const isSJCET = success
+export const getDataFromMail = (mail: string): ReturnGetDataFromMail => {
+    const { success: isSJCET, data: email } = sjcetMailSchema.safeParse(mail)
+    // const { success: isSJCET, data: email } = sjcetMailSchemaWithoutZod(mail)
 
     if (!isSJCET) return { isSJCET, data: null }
     const match = email.match(studentsRegex);
 
     if (match !== null) {
-        const {department, year} = verifyData(match[2], match[3])
+        const { department, year } = verifyData(match[2], match[3])
         const data: SJCET = {
             year,
             department,
@@ -57,7 +63,7 @@ export const getDataFromMail = (mail: string): ReturnGetDataFromMail => {
     const otherMatch = email.match(otherStudentsRegex);
 
     if (otherMatch !== null) {
-        const {department, year} = verifyData(otherMatch[2], otherMatch[3])
+        const { department, year } = verifyData(otherMatch[2], otherMatch[3])
         const data: SJCET = {
             year,
             department,
