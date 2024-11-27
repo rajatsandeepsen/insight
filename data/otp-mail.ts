@@ -1,3 +1,5 @@
+import { sentMail, simpleHTMLMail } from "@/source/mailer"
+
 const botNumber = process.env.SYSTEM_NUMBER ?? "0000000000"
 
 export const OtpMailTemplate = (otp: number, number: string) =>
@@ -24,3 +26,13 @@ export const OtpMailTemplate = (otp: number, number: string) =>
     </div>
   </div>
 </div>`
+
+export const sentOTP = async (to: string, otp: number, phone: string) => await sentMail({
+  to,
+  subject: "Here is the OTP for verification in Insight Portal",
+  text: `Use the OTP: "${otp}" to complete your Sign Up procedures`,
+  html: simpleHTMLMail({
+      title: "Verification for Insight Portal",
+      body: OtpMailTemplate(otp, phone)
+  })
+})

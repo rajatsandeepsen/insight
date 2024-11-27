@@ -3,6 +3,7 @@ export const allRoles = {
   student: true,
   faculty: true,
   admin: true,
+  lead: true
 } as const;
 
 export type AllRoles = keyof typeof allRoles;
@@ -13,6 +14,7 @@ export const allDepartments = {
   ec: 'Electronics and Communication',
   cs: 'Computer Science',
   cy: 'Cyber Security',
+  ct: 'Computer Technology (AI)',
   ecs: 'Electronics and Computer Science',
   ee: 'Electrical Engineering',
   ce: 'Civil Engineering',
@@ -41,6 +43,19 @@ export type AllYears = keyof typeof allYears;
 
 export type College = 'SJCET' | 'NA' | (string & {})
 
+export const allClubs = {
+  IEDC: "Startup Bootcamp SJCET",
+  IEEE: "IEEE SB SJCET",
+  GDSC: "Google Developer Students Club",
+  TINKERHUB: "Tinkerhub",
+  NEXUS: "The Nexus Project",
+  MULEARN: "Gtech Mulearn",
+
+  // todo: fill all
+} as const;
+
+export type AllClubs = keyof typeof allClubs;
+
 export type SimpleSJCET = {
   role: AllRoles;
   name: string;
@@ -54,6 +69,6 @@ export type SJCET = SimpleSJCET & ({
 })
 
 export type UserOtp = {
-  otp: number, 
-  email: string 
+  otp: number,
+  email: string
 }
