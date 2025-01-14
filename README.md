@@ -1,9 +1,9 @@
-# Insight! - Self Host-able AI Enabled Whatsapp Agent
-OSS Alternative to Zoko
-
 ![insight](https://github.com/user-attachments/assets/42645a0c-adf7-4c21-8502-2b6979ca01a1)
+# Insight!
+Self Host-able AI Enabled Whatsapp Agent, OSS Alternative to Zoko
 
 
+### Usage
 To install dependencies:
 
 ```bash
