@@ -1,13 +1,13 @@
 import { json2csv, csv2json } from 'json-2-csv';
-import { createToken } from "@/lib/encryption";
-import { csvToJsonZod } from '@/script/validation';
-import Certificates from "@/data/certificate.json";
+// import { createToken } from "@/lib/encryption";
+import { csvToJsonZod, dataZod } from '@/script/validation';
+// import Certificates from "@/data/certificate.json";
 
-const id = "sih-24-participation"
-const certificate = Certificates[id]
-const parentFolder = "./script/certificates"
+// const id = "insendium-24"
+// const certificate = Certificates[id]
+const parentFolder = "./script/events"
 
-const inputCSV = `${parentFolder}/data.csv`;
+const inputCSV = `${parentFolder}/shortlist.csv`;
 
 
 const csv = await Bun.file(inputCSV).text()
@@ -17,11 +17,15 @@ const json = csv2json(csv, {
     trimFieldValues: true,
 })
 
+console.log(json)
+
 const validatedJson = csvToJsonZod.parse(json)
 
 const outputJsonData = validatedJson.map(e => ({
     ...e,
-    token: createToken({ id, email: e.email, type: "certificate" }),
+    // token: createToken({ 
+    //     // id, 
+    //     email: e.email, type: "certificate" }),
 }))
 
 const outputCsv = `${parentFolder}/out.csv`;

@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
-import { tryAsync } from "@/lib/utils";
-import { OtpMailTemplate } from "@/data/otp-mail";
+import { triedAsync } from "@/lib/utils";
+import type { SendMailOptions } from "nodemailer";
 
 const transporter = nodemailer.createTransport({
     pool: true,
@@ -12,22 +12,24 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-type MailOptions = {
-    to: string
-    subject: string
-    text: string
-    html?: string  
+type MailOptions = SendMailOptions
+
+export const sentMail = async (props: MailOptions) => {
+    return await triedAsync(transporter.sendMail(props))
 }
 
-export const sentMail = async (props:MailOptions) => {
-    return await tryAsync(async () => await transporter.sendMail(props))
-}
-
-export const sentOTP = async (to:string, otp:number, phone:string) => await sentMail({
-    to, 
-    subject: "Here is the OTP for verification in Insight Portal",
-    text: `Use the OTP: "${otp}" to complete your Sign Up procedures`,
-    html: OtpMailTemplate(otp, phone)
-})
-
-// console.log(await sentOTP("asdfgh@gmail.com", 123456, "1234567890"))
+export const simpleHTMLMail = ({ title, body }: {
+    title: string,
+    body: string
+}) => {
+    return `<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title}</title>
+    </head>
+    <body>${body}</body>
+</html>`
+} 

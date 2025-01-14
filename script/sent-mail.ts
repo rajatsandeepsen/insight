@@ -1,33 +1,16 @@
 import { client } from "@/source/client";
-import JsonData from "@/script/certificates/out.json";
+import JsonData from "@/script/certificates/fossday-24/reset.json";
 import { dataZod, type CertificateZod } from "./validation";
-import { MessageMedia } from "whatsapp-web.js";
-import { sentMail } from "@/source/mailer";
+import { sentMail, simpleHTMLMail } from "@/source/mailer";
+import { getMessages } from "./message";
+import fs from "fs";
+import { promisify } from "util";
+
+const readFileAsync = promisify(fs.readFile);
 
 const json = dataZod.parse(JsonData)
-// const id = "top20coders-24-participation"
-// const imageFolder = `./script/certificates/${id}`
-
-const getMessages = (data: CertificateZod[0]) => {
-    const { name } = data
-    return `Hello  ${name}! 
-Here's your Top 20 Coders 2024 Certificate of Participation.
-
-On behalf of all the tech communities in SJCET, we express our sincere gratitude and profound appreciation for your participation in our program. 
-We are very excited to welcome you to our coding family and grow together. We will be back with more competitions and workshops. 
-We look forward to your continued involvement and cooperation in our future ventures. 
-
-Thank you 😊
-
-${getSecondMessage}`
-}
-
-const getSecondMessage = `NB: If you have any queries regarding the certificate, please contact us on whatsapp.
-
-Rajat Sandeep
-CTO IEDC SJCET
-`
-
+const id = "fossday-24"
+const imageFolder = `./script/certificates/${id}`
 
 
 
@@ -35,25 +18,29 @@ CTO IEDC SJCET
 json.forEach(async (data, i) => {
     const { number, email } = data
 
+    const imageAttachment = await readFileAsync(imageFolder + `/${email}.png`, { encoding: 'base64' });
+    const text = getMessages(data)
+    const subject = "FOSSDAY'24 - Certification"
+
     sentMail({
         to: email,
-        subject: "Your team have been selected to participate in SIH at SJCET Palai",
-        text: getMessages(data)
+        text,
+        subject,
+        html: simpleHTMLMail({
+            title: subject,
+            body: `<p>${text}</p><img src="cid:uniqueImageCID" alt="${subject}">`,
+        }),
+        attachments: [{
+            filename: `${email}.png`,
+            content: imageAttachment,
+            encoding: 'base64',
+            cid: 'uniqueImageCID', // Referenced in the HTML template
+        }],
     })
-    .then((e) => {
-        console.log(`${i}. Sent to ${email} ✅`)
-    })
-    .catch(e => {
-        console.log(`error while ${email}`, e)
-    })
-
-    // const imagePath = imageFolder + `/${email}.png`
-    // const media = MessageMedia.fromFilePath(imagePath);
-
-    // const first = await client.sendMessage(id, media, { 
-    //     caption: getMessages(data), 
-    //     sendMediaAsDocument: true,
-    // });
-    // const done = await first.reply(getSecondMessage)
-    
+        .then((e) => {
+            console.log(`${i}. Sent to ${email}, ${number} ✅`)
+        })
+        .catch(e => {
+            console.log(`error while ${email}, ${number}`, e)
+        })
 })
